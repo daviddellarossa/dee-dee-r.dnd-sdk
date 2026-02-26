@@ -57,3 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Established three-assembly architecture: `core` (pure C#) / `runtime` (Unity + localization) / `editor`
 - Enum-based approach confirmed for PHB-defined rules types; enum + companion SO pattern adopted for localization
+- Added 84 EditMode unit tests for all Core value types (`dee-dee-r.dnd-sdk.tests.editor`):
+  - `HitPointStateTests` (18) — damage/heal/temp HP logic, clamping, 2024 no-stack rule
+  - `AbilityScoreSetTests` (11) — full PHB modifier table, odd-score floor rounding, immutable `With()`
+  - `DiceExpressionTests` (12) — all `ToString()` formats, `Average` calculation, equality
+  - `ExhaustionLevelTests` (16) — 0–6 clamping, `D20Penalty = Level × 2`, comparison operators
+  - `CurrencyTests` (12) — denomination conversion, mixed totals, arithmetic operators
+  - `DeathSaveStateTests` (8) — stabilization/death thresholds, immutability
+  - `AttackRollResultTests` (7) — crit auto-hit, fumble, normal hit/miss
+- Added `"testables": ["dee-dee-r.dnd-sdk"]` to `DnD-SDK-main/Packages/manifest.json` — tests visible in Unity Test Runner under EditMode tab
