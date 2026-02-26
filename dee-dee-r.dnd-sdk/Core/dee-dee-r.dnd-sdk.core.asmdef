@@ -1,0 +1,14 @@
+{
+    "name": "dee-dee-r.dnd-sdk.core",
+    "rootNamespace": "DeeDeeR.DnD.Core",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
