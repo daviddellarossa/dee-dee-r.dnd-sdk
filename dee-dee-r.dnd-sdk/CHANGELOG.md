@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 2 — DiceRoller
+
+- **`DiceRoller`** (`DeeDeeR.DnD.Core.Systems`) — stateless class that rolls a `DiceExpression` via an injected `IRollProvider` and returns a `RollResult`
+  - Critical success / critical fail flags set only for a single d20 roll (the standard check die)
+  - Multi-die expressions (2d20 for advantage pool, damage dice) return no crit flags — the calling system selects and interprets results
+- **`UnityRollProvider`** (`DeeDeeR.DnD.Runtime.Systems`) — `IRollProvider` backed by `UnityEngine.Random.Range`; swap for `FakeRollProvider` in tests
+- **`FakeRollProvider`** (test assembly) — deterministic queue-based `IRollProvider` for unit tests; throws `InvalidOperationException` when the preset sequence is exhausted
+- **11 EditMode unit tests** (`DiceRollerTests`):
+  - Flat expression returns modifier with no crit flags
+  - Single die + positive/negative modifier
+  - Multiple dice sum correctly
+  - Natural 20 on a single d20 sets `IsCriticalSuccess`
+  - Natural 1 on a single d20 sets `IsCriticalFail`
+  - Normal d20 roll sets neither flag
+  - 2d20 (advantage pool) sets no crit flags even on all-20s
+  - Non-d20 max roll sets no crit flags
+  - `FakeRollProvider` throws when exhausted
+- Expanded `dee-dee-r.dnd-sdk.runtime.asmdef` with `rootNamespace`, `references` (`dee-dee-r.dnd-sdk.core`), and full field set
+
 #### Phase 1 — Core Assembly (pure C#, zero Unity dependency)
 
 - New assembly `dee-dee-r.dnd-sdk.core` (`noEngineReferences: true`) under `Core/`
