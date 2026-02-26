@@ -18,9 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `GetProficiencyBonus(int totalLevel)` → PHB 2024 table (+2 at L1–4, +3 at L5–8 … +6 at L17–20); throws `ArgumentOutOfRangeException` outside [1, 20]
   - `GetSkillBonus(AbilityScoreSet, SkillType, bool isProficient, bool hasExpertise, int profBonus)` → ability modifier + proficiency (doubled for expertise); exhaustion not included
   - `HasSkillProficiency`, `HasArmorProficiency`, `HasWeaponCategoryProficiency` — `ISet<T>` membership checks
-- **24 EditMode unit tests** across two new test classes:
+- **30 EditMode test methods** (39 total test case executions) across two new test classes:
   - `AbilitySystemTests` (16) — normal/advantage/disadvantage roll picking, crit flag preservation and discard, passive check, and two composite tests documenting the raw-ability-check and saving-throw modifier patterns
-  - `ProficiencySystemTests` (16) — full PHB bonus table via `[TestCase]`, expertise edge cases, governing-ability routing for `GetSkillBonus`, proficiency set membership checks, out-of-range level guard
+  - `ProficiencySystemTests` (14 methods, 23 test case executions) — full PHB bonus table via `[TestCase]`, expertise edge cases, governing-ability routing for `GetSkillBonus`, proficiency set membership checks, out-of-range level guard
 
 #### Phase 2 — DiceRoller
 
