@@ -1,5 +1,9 @@
 namespace DeeDeeR.DnD.Core.Enums
 {
+    /// <summary>
+    /// Character alignment along the law/chaos and good/evil axes, as defined in D&D 2024 PHB.
+    /// Unaligned is used for creatures that have no moral or ethical framework (most beasts).
+    /// </summary>
     public enum Alignment
     {
         LawfulGood     = 0,

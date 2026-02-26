@@ -9,10 +9,19 @@ namespace DeeDeeR.DnD.Core.Values
     /// </summary>
     public readonly struct DiceExpression : IEquatable<DiceExpression>
     {
+        /// <summary>Number of dice to roll. Zero means no dice (flat modifier only — see <see cref="Flat"/>).</summary>
         public readonly int      Count;
+
+        /// <summary>The type of die to roll (D4, D6, D8, D10, D12, D20, D100).</summary>
         public readonly DieType  Die;
+
+        /// <summary>Flat bonus (or penalty) added to the total after rolling. May be negative.</summary>
         public readonly int      Modifier;
 
+        /// <summary>Creates a dice expression (e.g. 2d6+3).</summary>
+        /// <param name="count">Number of dice. Use 0 for a flat value with no dice.</param>
+        /// <param name="die">Die type to roll.</param>
+        /// <param name="modifier">Flat modifier added after rolling.</param>
         public DiceExpression(int count, DieType die, int modifier = 0)
         {
             Count    = count;
@@ -33,6 +42,9 @@ namespace DeeDeeR.DnD.Core.Values
             }
         }
 
+        /// <summary>
+        /// Returns the expression as a human-readable string (e.g. "2d6+3", "1d8", "−2", "5").
+        /// </summary>
         public override string ToString()
         {
             if (Count <= 0)

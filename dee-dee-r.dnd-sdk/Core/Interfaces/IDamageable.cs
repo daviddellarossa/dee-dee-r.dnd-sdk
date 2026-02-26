@@ -9,6 +9,10 @@ namespace DeeDeeR.DnD.Core.Interfaces
     /// </summary>
     public interface IDamageable
     {
+        /// <summary>
+        /// Applies <paramref name="amount"/> points of the given <paramref name="damageType"/> to this entity.
+        /// Implementations are responsible for resolving resistances, immunities, and vulnerability.
+        /// </summary>
         void TakeDamage(int amount, DamageType damageType);
     }
 }

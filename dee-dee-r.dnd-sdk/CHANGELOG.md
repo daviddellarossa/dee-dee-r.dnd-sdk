@@ -62,7 +62,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `AbilityScoreSetTests` (11) — full PHB modifier table, odd-score floor rounding, immutable `With()`
   - `DiceExpressionTests` (12) — all `ToString()` formats, `Average` calculation, equality
   - `ExhaustionLevelTests` (16) — 0–6 clamping, `D20Penalty = Level × 2`, comparison operators
-  - `CurrencyTests` (12) — denomination conversion, mixed totals, arithmetic operators
-  - `DeathSaveStateTests` (8) — stabilization/death thresholds, immutability
-  - `AttackRollResultTests` (7) — crit auto-hit, fumble, normal hit/miss
+  - `CurrencyTests` (15) — denomination conversion, mixed totals, arithmetic operators, subtraction clamping, constructor clamping
+  - `DeathSaveStateTests` (9) — stabilization/death thresholds, immutability, constructor clamping
+  - `AttackRollResultTests` (8) — crit auto-hit, fumble, normal hit/miss, natural-1 forced miss
 - Added `"testables": ["dee-dee-r.dnd-sdk"]` to `DnD-SDK-main/Packages/manifest.json` — tests visible in Unity Test Runner under EditMode tab
+- Added XML documentation to all public members of all Core enums, value types, and interfaces
+- **Bug fixes** applied to Core value types:
+  - `AttackRollResult`: natural 1 now always forces a miss regardless of the `hit` parameter
+  - `Currency`: constructor clamps all denominations to zero (no negative values); `TotalInCopper` now returns `long` to avoid 32-bit overflow; `ToString()` now lists all non-zero denominations (PP, GP, EP, SP, CP) instead of only GP/SP/CP
+  - `DeathSaveState`: constructor now clamps `Successes` and `Failures` to zero minimum
+  - `IRollProvider`: removed stale unused `using` directives

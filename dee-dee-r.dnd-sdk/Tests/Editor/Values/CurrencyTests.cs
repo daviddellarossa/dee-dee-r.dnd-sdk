@@ -87,6 +87,26 @@ namespace DeeDeeR.DnD.Tests.Editor.Values
             Assert.AreEqual(3, result.SP);
         }
 
+        [Test]
+        public void Subtraction_WhenResultWouldBeNegative_ClampsToDenominationZero()
+        {
+            // 5gp - 10gp cannot go negative per denomination; clamps to 0gp.
+            var result = new Currency(gp: 5) - new Currency(gp: 10);
+            Assert.AreEqual(0, result.GP);
+            Assert.AreEqual(0, result.TotalInCopper);
+        }
+
+        // ── Constructor clamping ──────────────────────────────────────────────
+
+        [Test]
+        public void Constructor_NegativeValues_ClampToZero()
+        {
+            var c = new Currency(cp: -5, sp: -3, gp: -1);
+            Assert.AreEqual(0, c.CP);
+            Assert.AreEqual(0, c.SP);
+            Assert.AreEqual(0, c.GP);
+        }
+
         // ── Equality ─────────────────────────────────────────────────────────
 
         [Test]

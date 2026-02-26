@@ -1,5 +1,8 @@
 namespace DeeDeeR.DnD.Core.Enums
 {
+    /// <summary>
+    /// The six core ability scores as defined in D&D 2024 PHB.
+    /// </summary>
     public enum AbilityType
     {
         Strength     = 0,

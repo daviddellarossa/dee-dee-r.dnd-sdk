@@ -17,6 +17,7 @@ namespace DeeDeeR.DnD.Core.Values
         private readonly int _wisdom;
         private readonly int _charisma;
 
+        /// <summary>Creates an ability score set from six raw score values (typically 1–30).</summary>
         public AbilityScoreSet(int str, int dex, int con, int intel, int wis, int cha)
         {
             _strength     = str;
@@ -27,6 +28,7 @@ namespace DeeDeeR.DnD.Core.Values
             _charisma     = cha;
         }
 
+        /// <summary>Returns the raw score for the given ability.</summary>
         public int GetScore(AbilityType ability) => ability switch
         {
             AbilityType.Strength     => _strength,
@@ -43,6 +45,7 @@ namespace DeeDeeR.DnD.Core.Values
         /// </summary>
         public static int GetModifier(int score) => (int)Math.Floor((score - 10) / 2.0);
 
+        /// <summary>Returns the ability modifier for the given ability score.</summary>
         public int GetModifier(AbilityType ability) => GetModifier(GetScore(ability));
 
         /// <summary>Returns a new AbilityScoreSet with the given ability adjusted by delta.</summary>

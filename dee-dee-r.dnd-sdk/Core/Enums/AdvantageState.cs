@@ -7,8 +7,13 @@ namespace DeeDeeR.DnD.Core.Enums
     /// </summary>
     public enum AdvantageState
     {
+        /// <summary>Roll a single d20 with no modification from advantage or disadvantage.</summary>
         Normal      = 0,
+
+        /// <summary>Roll two d20s and take the higher result. Any number of advantage sources still yields one advantage.</summary>
         Advantage   = 1,
+
+        /// <summary>Roll two d20s and take the lower result. Advantage and Disadvantage together cancel to Normal.</summary>
         Disadvantage = 2
     }
 }

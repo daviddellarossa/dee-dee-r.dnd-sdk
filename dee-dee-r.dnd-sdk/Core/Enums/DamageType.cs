@@ -1,5 +1,9 @@
 namespace DeeDeeR.DnD.Core.Enums
 {
+    /// <summary>
+    /// The 13 damage types defined in D&D 2024 PHB.
+    /// Determines resistance, immunity, and vulnerability interactions.
+    /// </summary>
     public enum DamageType
     {
         Acid        = 0,

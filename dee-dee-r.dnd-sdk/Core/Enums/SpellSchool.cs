@@ -1,5 +1,8 @@
 namespace DeeDeeR.DnD.Core.Enums
 {
+    /// <summary>
+    /// The eight schools of magic as defined in D&D 2024 PHB.
+    /// </summary>
     public enum SpellSchool
     {
         Abjuration    = 0,

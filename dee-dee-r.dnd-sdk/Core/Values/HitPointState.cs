@@ -8,14 +8,31 @@ namespace DeeDeeR.DnD.Core.Values
     /// </summary>
     public readonly struct HitPointState
     {
+        /// <summary>Current hit points (0 = unconscious/dying; never negative).</summary>
         public readonly int Current;
+
+        /// <summary>Maximum hit points (the ceiling for healing).</summary>
         public readonly int Maximum;
+
+        /// <summary>Temporary hit points, consumed before regular HP. Do not stack (2024 PHB).</summary>
         public readonly int Temporary;
 
+        /// <summary>True when <see cref="Current"/> is above zero.</summary>
         public bool IsAlive       => Current > 0;
-        public bool IsUnconscious => Current <= 0;
-        public bool IsDead        => Current <= 0; // death is determined by death saves, not HP alone
 
+        /// <summary>True when <see cref="Current"/> is zero or below (creature is dying or unconscious).</summary>
+        public bool IsUnconscious => Current <= 0;
+
+        /// <summary>
+        /// True when <see cref="Current"/> is zero. Note: actual death is determined by
+        /// <see cref="DeathSaveState.IsDead"/>, not by hit points alone.
+        /// </summary>
+        public bool IsDead        => Current <= 0;
+
+        /// <summary>Creates a hit point state, clamping all values to zero minimum.</summary>
+        /// <param name="current">Current HP. Clamped to [0, ∞).</param>
+        /// <param name="maximum">Maximum HP. Clamped to [0, ∞).</param>
+        /// <param name="temporary">Temporary HP. Clamped to [0, ∞).</param>
         public HitPointState(int current, int maximum, int temporary = 0)
         {
             Current   = Math.Max(0, current);
@@ -58,6 +75,7 @@ namespace DeeDeeR.DnD.Core.Values
         public HitPointState WithMaximum(int newMax) =>
             new HitPointState(Math.Min(Current, newMax), newMax, Temporary);
 
+        /// <summary>Returns a display string such as "14/20 HP (+5 temp)" or "14/20 HP".</summary>
         public override string ToString() =>
             Temporary > 0
                 ? $"{Current}/{Maximum} HP (+{Temporary} temp)"

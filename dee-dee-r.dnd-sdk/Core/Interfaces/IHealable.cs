@@ -5,6 +5,7 @@ namespace DeeDeeR.DnD.Core.Interfaces
     /// </summary>
     public interface IHealable
     {
+        /// <summary>Restores <paramref name="amount"/> hit points to this entity, up to its maximum.</summary>
         void Heal(int amount);
     }
 }

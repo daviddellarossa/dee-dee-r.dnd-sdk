@@ -67,5 +67,14 @@ namespace DeeDeeR.DnD.Tests.Editor.Values
             var result = new AttackRollResult(roll, hit: false);
             Assert.IsFalse(result.Fumble);
         }
+
+        [Test]
+        public void Hit_OnNaturalOne_IsFalseEvenWhenHitPassedTrue()
+        {
+            // Natural 1 always misses — the caller cannot override this.
+            var roll   = new RollResult(total: 1, isCriticalFail: true);
+            var result = new AttackRollResult(roll, hit: true); // intentionally wrong caller input
+            Assert.IsFalse(result.Hit);
+        }
     }
 }

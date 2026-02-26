@@ -64,6 +64,16 @@ namespace DeeDeeR.DnD.Tests.Editor.Values
             Assert.AreEqual(0, original.Failures);
         }
 
+        // ── Constructor clamping ─────────────────────────────────────────────
+
+        [Test]
+        public void Constructor_NegativeValues_ClampToZero()
+        {
+            var state = new DeathSaveState(successes: -1, failures: -2);
+            Assert.AreEqual(0, state.Successes);
+            Assert.AreEqual(0, state.Failures);
+        }
+
         // ── Counters ─────────────────────────────────────────────────────────
 
         [Test]
