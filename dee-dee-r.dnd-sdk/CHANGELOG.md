@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 3 — AbilitySystem + ProficiencySystem
+
+- **`AbilitySystem`** (`DeeDeeR.DnD.Core.Systems`) — single entry point for all d20 rolls:
+  - `RollCheck(int totalModifier, AdvantageState)` — the only roll method; caller computes the full modifier (see class xmldoc for per-check-type formulas). For advantage/disadvantage, two `1d20` rolls are made and the appropriate result is returned with accurate crit flags.
+  - `static PassiveCheck(int totalModifier)` → `10 + modifier`, no roll
+  - Design principle: `AbilitySystem` owns dice mechanics only. Modifier computation (ability mod, proficiency, exhaustion penalty) is always the caller's responsibility, ensuring a uniform API regardless of check type (raw ability check, skill check, or saving throw).
+- **`ProficiencySystem`** (`DeeDeeR.DnD.Core.Systems`) — pure computations, no dependencies:
+  - `GetProficiencyBonus(int totalLevel)` → PHB 2024 table (+2 at L1–4, +3 at L5–8 … +6 at L17–20); throws `ArgumentOutOfRangeException` outside [1, 20]
+  - `GetSkillBonus(AbilityScoreSet, SkillType, bool isProficient, bool hasExpertise, int profBonus)` → ability modifier + proficiency (doubled for expertise); exhaustion not included
+  - `HasSkillProficiency`, `HasArmorProficiency`, `HasWeaponCategoryProficiency` — `ISet<T>` membership checks
+- **30 EditMode test methods** (39 total test case executions) across two new test classes:
+  - `AbilitySystemTests` (16) — normal/advantage/disadvantage roll picking, crit flag preservation and discard, passive check, and two composite tests documenting the raw-ability-check and saving-throw modifier patterns
+  - `ProficiencySystemTests` (14 methods, 23 test case executions) — full PHB bonus table via `[TestCase]`, expertise edge cases, governing-ability routing for `GetSkillBonus`, proficiency set membership checks, out-of-range level guard
+
 #### Phase 2 — DiceRoller
 
 - **`DiceRoller`** (`DeeDeeR.DnD.Core.Systems`) — stateless class that rolls a `DiceExpression` via an injected `IRollProvider` and returns a `RollResult`
