@@ -20,14 +20,12 @@ namespace DeeDeeR.DnD.Core.Values
         /// <summary>True when <see cref="Current"/> is above zero.</summary>
         public bool IsAlive       => Current > 0;
 
-        /// <summary>True when <see cref="Current"/> is zero or below (creature is dying or unconscious).</summary>
-        public bool IsUnconscious => Current <= 0;
-
         /// <summary>
-        /// True when <see cref="Current"/> is zero. Note: actual death is determined by
-        /// <see cref="DeathSaveState.IsDead"/>, not by hit points alone.
+        /// True when <see cref="Current"/> is zero (creature is unconscious and dying).
+        /// Death itself is determined by <see cref="DeathSaveState.IsDead"/> — reaching 0 HP
+        /// does not mean the creature is dead.
         /// </summary>
-        public bool IsDead        => Current <= 0;
+        public bool IsUnconscious => Current <= 0;
 
         /// <summary>Creates a hit point state, clamping all values to zero minimum.</summary>
         /// <param name="current">Current HP. Clamped to [0, ∞).</param>
