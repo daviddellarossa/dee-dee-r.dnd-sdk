@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "dee-dee-r.dnd-sdk.core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
