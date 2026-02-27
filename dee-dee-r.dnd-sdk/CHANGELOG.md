@@ -8,6 +8,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 5 — Runtime State Classes
+
+- **`SpellSlotState`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` tracking available spell slots at levels 1–9. Nine individual `int` fields (Slot1–Slot9), each clamped ≥ 0. Key API:
+  - `GetAvailable(int level)` → int; `HasSlot(int level)` → bool
+  - `WithExpended(int level)` → new state with one slot decremented (clamped to 0)
+  - `WithRecovered(int level, int count)` → new state with slots added at that level
+  - `Total` — sum across all levels; `Empty` — all-zero static instance
+  - `ToString()` shows only non-zero levels (e.g. "1st×4 2nd×3 3rd×2")
+  - `==` / `!=` / `Equals` / `GetHashCode` implemented
+- **`ITemporaryEffect`** (`DeeDeeR.DnD.Core.Interfaces`) — marker interface for game-defined temporary effects stored in `CharacterState.TemporaryEffects`. The SDK holds and prunes the list; all logic is in game-provided implementations. Single member: `bool IsExpired { get; }`.
+- **`ClassLevel`** (`DeeDeeR.DnD.Runtime.State`) — one entry per class in a (potentially multiclass) build: `ClassSO Class`, `SubclassSO Subclass` (null until chosen), `int Level` (1–20), `int HitDiceSpent` (reset on long rest).
+- **`CharacterRecord`** (`DeeDeeR.DnD.Runtime.State`) — semi-static identity and build data:
+  - Identity: `Name`, `PlayerName`, `Alignment`, personality text (plain strings — player-authored)
+  - Origin: `SpeciesSO Species`, `SubspeciesSO Subspecies` (nullable), `BackgroundSO Background`
+  - Build: `List<ClassLevel> ClassLevels`, `AbilityScoreSet AbilityScores` (post all-ASI)
+  - Proficiencies: `HashSet<SkillType> SkillProficiencies`, `HashSet<SkillType> SkillExpertise`, `HashSet<WeaponCategory>`, `HashSet<ArmorCategory>`, `bool HasShieldProficiency`, `List<ToolSO>`
+  - Other: `List<FeatSO> Feats`, `HashSet<LanguageType> Languages`
+- **`CharacterState`** (`DeeDeeR.DnD.Runtime.State`) — mutable per-session state:
+  - `HitPointState HitPoints`, `DeathSaveState DeathSaves`
+  - `HashSet<Condition> Conditions`, `ExhaustionLevel Exhaustion`
+  - `SpellSlotState SpellSlots`, `SpellSO ConcentrationSpell` (null when not concentrating)
+  - `Dictionary<DieType, int> HitDiceAvailable` (per die type, for multiclass)
+  - `List<ITemporaryEffect> TemporaryEffects` (`[NonSerialized]` — transient)
+  - `bool Inspiration`; per-turn flags `ActionUsed`, `BonusActionUsed`, `ReactionUsed`
+- **`InventoryState`** (`DeeDeeR.DnD.Runtime.State`) — carried items and equipped gear:
+  - `List<OwnedItem> Items`, `Currency Currency`
+  - `WeaponSO EquippedMainHand`, `WeaponSO EquippedOffHandWeapon`, `ShieldSO EquippedOffHandShield`, `ArmorSO EquippedArmor`
+  - Off-hand is split into two nullable fields (weapon vs. shield) rather than a shared `ScriptableObject` reference, preserving type safety
+  - `OwnedItem` — nested `[Serializable]` class: `ItemSO Item` + `int Quantity`
+- **`SpellbookState`** (`DeeDeeR.DnD.Runtime.State`) — `List<SpellSO> KnownSpells` (spellbook/learning), `List<SpellSO> PreparedSpells` (daily selection or full known list for known-spell casters)
+
+#### Design notes — Phase 5
+- State classes are plain C# (`[Serializable]`) — not ScriptableObjects. `[SerializeField]` is not used; fields are public for direct system access.
+- `AbilityScoreSet` and `SpellSlotState` (both `readonly struct`) are used directly as fields. Unity's built-in serializer cannot handle them; JSON.NET and custom save systems can.
+- `HashSet<T>` used for proficiency sets (O(1) `Contains`, matches `ProficiencySystem` API). `List<T>` used for ordered/duplicable collections.
+- `TemporaryEffects` is `[NonSerialized]` — these are transient runtime objects not intended to persist across sessions. They are rebuilt when effects are re-applied on load.
+- `SkillExpertise` added to `CharacterRecord` (not explicit in plan but required by `ProficiencySystem.GetSkillBonus` which already accepts an `hasExpertise` parameter).
+
 #### Phase 4 — ScriptableObject Definitions (continued, second pass)
 
 - All player-visible text fields across content SOs replaced with `LocalizedString` (private `[SerializeField]`, public getter property). Affected types: `AmmunitionSO.Description`, `BackgroundSO.Description`, `BackgroundSO.FlavorText`, `FeatSO.Description`, `FeatSO.PrerequisiteDescription`, `ItemSO.Description` (inherited by `ToolSO` and `AdventuringGearSO`), `ToolSO.UsageRules`, `SpeciesSO.Description`, `SubspeciesSO.Description`, `SubclassSO.Description`, `TraitSO.Description`, `SpellSO.Description`, `SpellSO.HigherLevelDescription`, `SpellSO.ReactionTrigger`, `SpellSO.SelfAreaDescription`, `SpellSO.MaterialDescription`, `ClassFeatureEntry.Name`, `ClassFeatureEntry.Description`. The `[TextArea]` attribute is removed from all of these — the `LocalizedString` inspector widget replaces it.
