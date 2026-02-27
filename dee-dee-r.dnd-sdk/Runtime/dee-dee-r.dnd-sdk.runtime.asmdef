@@ -2,7 +2,8 @@
     "name": "dee-dee-r.dnd-sdk.runtime",
     "rootNamespace": "DeeDeeR.DnD.Runtime",
     "references": [
-        "dee-dee-r.dnd-sdk.core"
+        "dee-dee-r.dnd-sdk.core",
+        "Unity.Localization"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
