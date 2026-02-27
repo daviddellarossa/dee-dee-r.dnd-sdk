@@ -8,6 +8,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 4 — ScriptableObject Definitions (continued, second pass)
+
+- All player-visible text fields across content SOs replaced with `LocalizedString` (private `[SerializeField]`, public getter property). Affected types: `AmmunitionSO.Description`, `BackgroundSO.Description`, `BackgroundSO.FlavorText`, `FeatSO.Description`, `FeatSO.PrerequisiteDescription`, `ItemSO.Description` (inherited by `ToolSO` and `AdventuringGearSO`), `ToolSO.UsageRules`, `SpeciesSO.Description`, `SubspeciesSO.Description`, `SubclassSO.Description`, `TraitSO.Description`, `SpellSO.Description`, `SpellSO.HigherLevelDescription`, `SpellSO.ReactionTrigger`, `SpellSO.SelfAreaDescription`, `SpellSO.MaterialDescription`, `ClassFeatureEntry.Name`, `ClassFeatureEntry.Description`. The `[TextArea]` attribute is removed from all of these — the `LocalizedString` inspector widget replaces it.
+- Design rationale: `LocalizedString` works identically in the editor (shows a String Table picker UI) and in-game. Using it everywhere ensures the SDK ships with first-class localization support and eliminates any disparity between content SOs and companion SOs.
+
+#### Phase 4 — ScriptableObject Definitions (continued)
+
+- **`CastingTimeType`** (`DeeDeeR.DnD.Core.Enums`) — replaces the plain `string CastingTime` field in `SpellSO`. Values: `Action`, `BonusAction`, `Reaction`, `OneMinute`, `TenMinutes`, `OneHour`, `EightHours`, `TwentyFourHours`, `Special`. The `Reaction` case requires populating `SpellSO.ReactionTrigger` with the trigger description.
+- **`SpellRangeType`** (`DeeDeeR.DnD.Core.Enums`) — replaces `string RangeType`. Values: `Self`, `Touch`, `Ranged`, `Sight`, `Unlimited`, `Special`. `Ranged` uses the existing `RangeDistance` field. `Self` spells with an emanating area (e.g. "Self (15-foot cone)") populate the new `SelfAreaDescription` field.
+- **`SpellDurationType`** (`DeeDeeR.DnD.Core.Enums`) — replaces `string Duration`. Values: `Instantaneous`, `OneRound`, `OneMinute`, `TenMinutes`, `OneHour`, `EightHours`, `TwentyFourHours`, `SevenDays`, `UntilDispelled`, `UntilDispelledOrTriggered`, `Special`. Concentration is tracked separately by `SpellSO.IsConcentration`.
+- **`SpellSO`** updated: `CastingTime`, `RangeType`, `Duration` changed from `string` to the three new enums; `ReactionTrigger` (string) and `SelfAreaDescription` (string) added as companion fields for the two edge cases that enums alone cannot express.
+
+#### Phase 4 — ScriptableObject Definitions
+
+- **`CurrencyData`** and **`DiceExpressionData`** (`DeeDeeR.DnD.Runtime.Data`) — serializable wrapper classes for the Core `readonly struct` types. Unity cannot serialize `readonly struct` fields; these classes store individual components and expose the immutable Core value via `ToValue()`. Used by all content SOs that need currency costs or dice expressions.
+- **Shared serializable types** (`DeeDeeR.DnD.Runtime.Data`) in `DataHelpers.cs`:
+  - `AbilityScoreIncrease` — `AbilityType + int Amount`; used by `BackgroundSO` and `FeatSO`
+  - `ClassFeatureEntry` — `int Level + string Name + string Description`; used by `ClassSO` and `SubclassSO`
+  - `ItemGrant` — `ItemSO reference + int Quantity`; used by `BackgroundSO` and `ClassSO`
+  - `SkillChoiceOptions` — `SkillType[] Pool + int Count`; used by `ClassSO`
+  - `AbilityPrerequisite` — `AbilityType + int MinScore`; used by `ClassSO.MulticlassPrerequisites`
+- **10 companion ScriptableObjects** (`DeeDeeR.DnD.Runtime.Data.Definitions`) — one per enum that needs UI display; each implements `ILocalizable` and exposes its enum type plus two `LocalizedString` fields:
+  - `AbilityDefinitionSO` — `AbilityType`
+  - `SkillDefinitionSO` — `SkillType`; derives `LinkedAbility` from `SkillTypeExtensions.GetAbility()` (not serialized)
+  - `DieSO` — `DieType`; derives `NumOfFaces` from enum value
+  - `DamageTypeDefinitionSO` — `DamageType`
+  - `ConditionDefinitionSO` — `Condition`
+  - `WeaponCategoryDefinitionSO` — `WeaponCategory`
+  - `WeaponMasteryDefinitionSO` — `WeaponMastery`
+  - `SpellSchoolDefinitionSO` — `SpellSchool`
+  - `CurrencyDefinitionSO` — `CurrencyType`
+  - `LanguageDefinitionSO` — `LanguageType`
+- **15 content ScriptableObjects** (`DeeDeeR.DnD.Runtime.Data`) — pure data assets, no game logic:
+  - `TraitSO` — reusable species/subspecies trait with description text
+  - `ItemSO` — base item (description, weight, cost); subclassed by ToolSO and AdventuringGearSO
+  - `ToolSO : ItemSO` — adds `AssociatedSkill (SkillType)` and usage rules text
+  - `AdventuringGearSO : ItemSO` — semantic subtype tag (rope, torch, etc.)
+  - `AmmunitionSO` — ammunition for ranged weapons; referenced by `WeaponSO.RequiredAmmo`
+  - `ArmorSO` — Light/Medium/Heavy armour: `BaseArmorClass`, `MaxDexBonus` (−1 = no cap), `StrengthRequirement`, `StealthDisadvantage`
+  - `ShieldSO` — shield slot (separate from ArmorCategory); `AcBonus` (default +2)
+  - `WeaponSO` — weapon: category, damage dice/type, properties array, mastery property, normal/long range, optional ammo reference, optional versatile dice, weight, cost
+  - `SpeciesSO` — species: size, movement speed, darkvision range, traits, languages, subspecies list. **No ASI** (D&amp;D 2024 rule — backgrounds grant ASI)
+  - `SubspeciesSO` — parent species reference, additional traits and languages
+  - `FeatSO` — category, description, prerequisite description (text), ability score increases list
+  - `BackgroundSO` — ASI list (+2 total), origin feat, two skill proficiencies, tool proficiency, starting equipment grants, flavour text
+  - `ClassSO` — hit die, primary abilities, saving throw proficiencies, armour/weapon/tool proficiencies, shield proficiency flag, skill choices, caster type, spellcasting ability, multiclass prerequisites, subclass level, feature list, starting equipment
+  - `SubclassSO` — parent class, description, expanded spell list, granted weapon masteries, feature list
+  - `SpellSO` — level (0–9), school, casting time (string), range type/distance, components (flags), material description, duration (string), concentration/ritual flags, description, higher-level description, class lists
+
+#### Technical Improvements (Phase 4)
+
+- Added `"Unity.Localization"` to `dee-dee-r.dnd-sdk.runtime.asmdef` references — companion SOs depend on `LocalizedString` from `com.unity.localization`
+- Added `"com.unity.localization": "1.5.2"` to `DnD-SDK-main/Packages/manifest.json`
+- Design rationale — companion SOs vs content SOs: companion SOs (`*DefinitionSO`) implement `ILocalizable` and are **display-only** — systems never use them. Content SOs hold all rule-relevant data that systems will read in Phase 5+. The split keeps Core free of Unity dependencies.
+- Design rationale — `CurrencyData` / `DiceExpressionData`: `readonly struct` is the correct immutable value type for game logic, but Unity's serialization cannot handle `readonly` fields. Wrapper classes bridge the gap: the inspector edits the components; calling code reads the immutable Core value via `ToValue()` / `DamageExpression` etc.
+
 #### Phase 3 — AbilitySystem + ProficiencySystem
 
 - **`AbilitySystem`** (`DeeDeeR.DnD.Core.Systems`) — single entry point for all d20 rolls:
