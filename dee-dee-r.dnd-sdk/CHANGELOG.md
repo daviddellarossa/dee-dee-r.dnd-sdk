@@ -8,6 +8,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 6 — Character Creation Systems
+
+- **`SavingThrowProficiencies`** added to `CharacterRecord` (`HashSet<AbilityType>`) — was missing from Phase 5; required by `CharacterFactory` to apply starting class saving throw profs.
+- **`MulticlassSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — sealed class, no mutable state:
+  - `CalculateCombinedSpellSlots(IReadOnlyList<ClassLevel>)` — implements the D&D 2024 PHB multiclass spellcaster slot table. Full casters contribute their full level; Half casters contribute level ÷ 2 (floor); Third casters contribute level ÷ 3 (floor). The combined effective level indexes into a 20-row embedded table (rows 0–20, columns 0–9). Returns `SpellSlotState.Empty` when no class contributes to the table.
+  - `ValidateMulticlassPrerequisites(CharacterRecord, ClassSO)` — checks every `AbilityPrerequisite` on `ClassSO.MulticlassPrerequisites` against the character's current ability scores; returns `false` on the first unmet requirement.
+  - **Known limitation:** the combined slot formula is only fully accurate for true multiclass combinations. Single-class half/third casters (e.g. Paladin 5) yield fewer slots than their own class table. Per-class slot look-up is deferred to Phase 9 (`SpellSystem`).
+- **`CharacterFactory`** (`DeeDeeR.DnD.Runtime.Systems`) — sealed class:
+  - `Build(characterName, playerName, species, subspecies, background, baseScores, classLevels, chosenSkillProficiencies?)` → `(CharacterRecord, CharacterState)`. Key behaviours:
+    - Ability scores: applies background ASIs on top of `baseScores` (D&D 2024 — species grants no ASIs).
+    - Proficiencies: saving throws, armor, weapons, shield, tools from the primary class (index 0). Multiclass entries (index 1+) grant armor/weapon/shield profs only (no saving throws per PHB 2024).
+    - Languages from `SpeciesSO.Languages` + `SubspeciesSO.AdditionalLanguages`.
+    - Origin feat from `BackgroundSO.OriginFeat` added to `CharacterRecord.Feats`.
+    - HP: level 1 of the primary class uses the maximum die result; all other levels use the fixed average (⌊faces ÷ 2⌋ + 1). Each level grants at least 1 HP regardless of CON modifier.
+    - Hit dice: grouped by die type in `CharacterState.HitDiceAvailable`.
+    - Spell slots: delegated to `MulticlassSystem.CalculateCombinedSpellSlots`.
+- **`LevelUpSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — sealed class:
+  - `LevelUp(record, state, classToLevel, chosenSubclass?, chosenFeat?, chosenASIs?)` — mutates `CharacterRecord` and `CharacterState` in place. Key behaviours:
+    - Finds an existing `ClassLevel` by class reference or creates a new one (multiclassing). New-class additions validate multiclass prerequisites first, throwing `InvalidOperationException` if not met.
+    - Increments `ClassLevel.Level`.
+    - Assigns `ClassLevel.Subclass` if the new level reaches `ClassSO.SubclassLevel` and no subclass has been chosen yet.
+    - Adds one hit die of the class's hit die type to `HitDiceAvailable`.
+    - HP gain: fixed average (⌊faces ÷ 2⌋ + 1) + CON modifier, minimum 1. Both `Current` and `Maximum` increase by this amount.
+    - Applies ability score increases (each capped at 20).
+    - Appends `chosenFeat` to `CharacterRecord.Feats`.
+    - Recalculates `SpellSlotState` via `MulticlassSystem` after the level is applied.
+    - Multiclass proficiency note: armor/weapon/shield profs applied for new class entries; saving throws are never granted when multiclassing per PHB 2024.
+- **Tests** (`Tests/Editor/Systems/`):
+  - `MulticlassSystemTests` — 13 cases covering full/half/third caster effective level calculation, combined table look-up, edge cases (null entries, clamped max), and `ValidateMulticlassPrerequisites` (null guards, met/unmet single/multiple prereqs).
+  - `CharacterFactoryTests` — 22 cases covering argument validation, identity fields, background ASI application, proficiency assignment, language propagation, HP formula (level 1 max, multi-level average, negative CON clamping), hit dice grouping, and spell slot output.
+  - `LevelUpSystemTests` — 20 cases covering argument validation, level increment, new-class addition, subclass assignment timing, HP gain (average, CON bonus, negative CON clamping), hit dice, ASI application (capped at 20), feat addition, spell slot recalculation, and multiclass prerequisite enforcement.
+- **`Tests/Editor/Editor.asmdef`** updated: added `dee-dee-r.dnd-sdk.runtime` reference to allow Phase 6 tests to create `ScriptableObject` instances.
+
+#### Design notes — Phase 6
+- Systems mutate `CharacterRecord`/`CharacterState` via in-place modification (`LevelUpSystem`) or return a new pair (`CharacterFactory`). `LevelUpSystem` cannot return deep copies efficiently because the objects contain reference-type collections; this is consistent with how the surrounding system layer is expected to use them.
+- `ClassSO` does not distinguish starting vs. multiclass proficiency subsets (no separate `MulticlassArmorProficiencies` field). `LevelUpSystem` applies all armor/weapon/shield profs as a simplification. If the PHB multiclass proficiency subsets need enforcement, a future field can be added to `ClassSO`.
+- The multiclass spell slot limitation (single-class half/third casters) is documented on `MulticlassSystem` with a `<remarks>` XML comment.
+
 #### Phase 5 — Runtime State Classes
 
 - **`SpellSlotState`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` tracking available spell slots at levels 1–9. Nine individual `int` fields (Slot1–Slot9), each clamped ≥ 0. Key API:

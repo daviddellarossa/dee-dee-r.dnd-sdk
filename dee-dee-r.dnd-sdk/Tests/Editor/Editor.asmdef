@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "dee-dee-r.dnd-sdk.core"
+        "dee-dee-r.dnd-sdk.core",
+        "dee-dee-r.dnd-sdk.runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
