@@ -129,6 +129,33 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
                     new AbilityScoreSet(15, 13, 14, 10, 12, 8), new List<ClassLevel>()));
         }
 
+        [Test]
+        public void Build_NullPrimaryClassEntry_ThrowsArgumentException()
+        {
+            var levels = new List<ClassLevel> { null };
+            Assert.Throws<ArgumentException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
+        [Test]
+        public void Build_PrimaryClassEntryWithNullClass_ThrowsArgumentNullException()
+        {
+            var levels = new List<ClassLevel> { new ClassLevel { Class = null, Level = 1 } };
+            Assert.Throws<ArgumentNullException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
+        [Test]
+        public void Build_PrimaryClassEntryWithZeroLevel_ThrowsArgumentException()
+        {
+            var levels = new List<ClassLevel> { new ClassLevel { Class = _fighterClass, Level = 0 } };
+            Assert.Throws<ArgumentException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
         // ── Identity fields ───────────────────────────────────────────────────
 
         [Test]
@@ -165,6 +192,17 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
             var (record, _) = _factory.Build("Thorin", null, _humanSpecies, null,
                 _soldierBackground, base_, levels);
             Assert.AreEqual(15, record.AbilityScores.GetScore(AbilityType.Strength));
+        }
+
+        [Test]
+        public void Build_BackgroundASI_CapsResultingScoreAt20()
+        {
+            // Base STR=19; background adds +2 → would be 21 without cap → clamped to 20.
+            var base_ = new AbilityScoreSet(str: 19, dex: 10, con: 10, intel: 10, wis: 10, cha: 10);
+            var levels = new List<ClassLevel> { new ClassLevel { Class = _fighterClass, Level = 1 } };
+            var (record, _) = _factory.Build("Thorin", null, _humanSpecies, null,
+                _soldierBackground, base_, levels);
+            Assert.AreEqual(20, record.AbilityScores.GetScore(AbilityType.Strength));
         }
 
         [Test]

@@ -47,8 +47,9 @@ namespace DeeDeeR.DnD.Runtime.Systems
         /// <param name="state">The character's mutable state. Modified in place.</param>
         /// <param name="classToLevel">The class to gain a level in. Must not be null.</param>
         /// <param name="chosenSubclass">
-        /// The subclass to adopt, if the new level is the subclass-choice level for this class
-        /// and no subclass has been chosen yet. Ignored otherwise. May be null.
+        /// The subclass to adopt. Assigned the first time <see cref="LevelUp"/> is called at or
+        /// above <see cref="ClassSO.SubclassLevel"/> for this class, provided no subclass has been
+        /// chosen yet. Ignored if a subclass is already set or if this argument is null.
         /// </param>
         /// <param name="chosenFeat">
         /// A feat gained at this level (e.g. from an ASI/Feat choice or Epic Boon). May be null.

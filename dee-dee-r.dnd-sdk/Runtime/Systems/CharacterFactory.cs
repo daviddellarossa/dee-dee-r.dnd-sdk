@@ -78,6 +78,12 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (background == null) throw new ArgumentNullException(nameof(background));
             if (classLevels == null || classLevels.Count == 0)
                 throw new ArgumentException("At least one class level is required.", nameof(classLevels));
+            if (classLevels[0] == null)
+                throw new ArgumentException("Primary class entry (index 0) must not be null.", nameof(classLevels));
+            if (classLevels[0].Class == null)
+                throw new ArgumentNullException(nameof(classLevels), "Primary class entry must have a non-null Class.");
+            if (classLevels[0].Level <= 0)
+                throw new ArgumentException("Primary class entry must have a positive Level.", nameof(classLevels));
 
             var record = BuildRecord(characterName, playerName, species, subspecies, background,
                 baseScores, classLevels, chosenSkillProficiencies);
@@ -108,10 +114,11 @@ namespace DeeDeeR.DnD.Runtime.Systems
                 Background = background,
             };
 
-            // Ability scores: start from base scores, then apply background ASIs (D&D 2024).
+            // Ability scores: start from base scores, then apply background ASIs (D&D 2024),
+            // clamping each resulting score to the standard maximum (20).
             var scores = baseScores;
             foreach (var asi in background.AbilityScoreIncreases)
-                scores = scores.With(asi.Ability, scores.GetScore(asi.Ability) + asi.Amount);
+                scores = scores.With(asi.Ability, Math.Min(20, scores.GetScore(asi.Ability) + asi.Amount));
             record.AbilityScores = scores;
 
             // Class levels list.
@@ -172,7 +179,12 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (cls.HasShieldProficiency)
                 record.HasShieldProficiency = true;
 
-            if (cls.ToolProficiencies != null)
+            // Tool proficiencies are only granted by the primary (starting) class.
+            // ClassSO has no separate multiclass proficiency subset, so applying the full
+            // tool list for multiclass entries would over-grant. Some classes do grant a
+            // specific tool on multiclassing (e.g. Bard: instrument, Rogue: thieves' tools),
+            // but that granularity requires a future ClassSO field.
+            if (isPrimary && cls.ToolProficiencies != null)
                 foreach (var tool in cls.ToolProficiencies)
                     record.ToolProficiencies.Add(tool);
         }

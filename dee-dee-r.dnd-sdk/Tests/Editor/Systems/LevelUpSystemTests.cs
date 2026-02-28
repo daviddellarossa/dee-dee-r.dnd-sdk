@@ -275,13 +275,13 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
         }
 
         [Test]
-        public void LevelUp_NonCasterLevelUp_SpellSlotsUnchanged()
+        public void LevelUp_NonCasterLevelUp_RecalculatesSpellSlotsToEmpty()
         {
-            // Leveling up Fighter (non-caster) should not change spell slots.
+            // Slot state is always recalculated from class levels — Fighter contributes
+            // nothing, so the result is Empty regardless of what was stored before.
             var (record, state) = MakeFighter1();
             state.SpellSlots = new SpellSlotState(s1: 4, s2: 3); // Simulate pre-existing slots.
             _system.LevelUp(record, state, _fighterClass);
-            // Fighter is None caster — combined spell slots remain 0.
             Assert.AreEqual(SpellSlotState.Empty, state.SpellSlots);
         }
 
