@@ -42,9 +42,10 @@ namespace DeeDeeR.DnD.Runtime.Systems
         // ── Exhaustion penalty ────────────────────────────────────────────────
 
         /// <summary>
-        /// Returns the flat penalty applied to all d20 tests and spell save DCs for the
-        /// character's current exhaustion level (level × −2 per D&amp;D 2024 PHB).
-        /// Returns 0 when the character is not exhausted.
+        /// Returns the exhaustion penalty for all d20 tests and spell save DCs as a positive
+        /// magnitude (exhaustion level × 2 per D&amp;D 2024 PHB). Callers subtract this value
+        /// from d20 rolls. Returns 0 when the character is not exhausted.
+        /// Delegates directly to <see cref="DeeDeeR.DnD.Core.Values.ExhaustionLevel.D20Penalty"/>.
         /// </summary>
         /// <param name="state">The character's current state.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="state"/> is null.</exception>

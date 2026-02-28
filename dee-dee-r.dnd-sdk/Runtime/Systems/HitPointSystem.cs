@@ -124,6 +124,12 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (state.HitPoints.IsAlive)
                 throw new InvalidOperationException(
                     "Death saving throws can only be made while the character is at 0 HP.");
+            if (state.DeathSaves.IsStabilized)
+                throw new InvalidOperationException(
+                    "Character is already stabilized; no further death saves are needed.");
+            if (state.DeathSaves.IsDead)
+                throw new InvalidOperationException(
+                    "Character is already dead; death saving throws can no longer be made.");
 
             int roll = roller.RollDie(20);
 
@@ -169,7 +175,7 @@ namespace DeeDeeR.DnD.Runtime.Systems
         public bool MassiveDamageCheck(CharacterState state, int amount)
         {
             if (state == null) throw new ArgumentNullException(nameof(state));
-            return amount * 2 >= state.HitPoints.Maximum;
+            return (long)amount * 2 >= state.HitPoints.Maximum;
         }
     }
 }

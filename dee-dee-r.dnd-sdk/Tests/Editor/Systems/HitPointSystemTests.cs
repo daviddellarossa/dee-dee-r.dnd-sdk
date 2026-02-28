@@ -261,6 +261,24 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
         }
 
         [Test]
+        public void RollDeathSave_AlreadyStabilized_ThrowsInvalidOperationException()
+        {
+            var state = MakeState(current: 0, maximum: 20);
+            state.DeathSaves = new DeathSaveState(successes: 3, failures: 0);
+            Assert.Throws<InvalidOperationException>(
+                () => _system.RollDeathSave(state, new FakeRollProvider(10)));
+        }
+
+        [Test]
+        public void RollDeathSave_AlreadyDead_ThrowsInvalidOperationException()
+        {
+            var state = MakeState(current: 0, maximum: 20);
+            state.DeathSaves = new DeathSaveState(successes: 0, failures: 3);
+            Assert.Throws<InvalidOperationException>(
+                () => _system.RollDeathSave(state, new FakeRollProvider(20)));
+        }
+
+        [Test]
         public void RollDeathSave_ThreeSuccesses_IsStabilized()
         {
             var state = MakeState(current: 0, maximum: 20);
