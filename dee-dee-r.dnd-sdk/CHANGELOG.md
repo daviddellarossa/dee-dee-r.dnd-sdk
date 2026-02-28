@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 8 — Combat Systems
+
+- **`MasteryEffect`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` describing the mechanical effect of a weapon mastery property: `GrantsFreeAttack` (Cleave), `DealsDamageOnMiss` (Graze), `OffHandAttackIsFree` (Nick), `PushesTarget`/`PushDistance` (Push — 10 ft), `SapsTarget` (Sap), `SlowsTarget`/`SpeedReduction` (Slow — 10 ft), `TopplesToTarget` (Topple), `GrantsAttackerAdvantage` (Vex). All parameters optional (default `false`/`0`). `None` static instance.
+- **`CharacterState.WeaponMasteries`** (`HashSet<WeaponMastery>`) — which mastery properties the character may currently apply. Repopulated after each Long Rest when the character re-selects their mastery weapons.
+- **`InitiativeSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — `RollInitiative(record, state, roller, advantage)` → `int`: d20 + DEX modifier − exhaustion penalty. Supports `AdvantageState.Advantage`/`Disadvantage` (two dice rolled, higher/lower taken).
+- **`WeaponMasterySystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+  - `CanUseMastery(state, weapon)` → `bool` — returns `true` when the weapon has a non-`None` mastery property and that property is in `CharacterState.WeaponMasteries`.
+  - `GetMasteryEffect(mastery)` → `MasteryEffect` — descriptor-based approach; callers apply consequences through existing systems (e.g. `ConditionSystem.Apply(Prone)` for Topple, `HitPointSystem.ApplyDamage` for Graze damage).
+- **`CombatSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+  - `GetAttackBonus(record, state, weapon)` → `int` — ability modifier (STR; Finesse uses higher of STR/DEX; Range uses DEX) + proficiency (if weapon category in `WeaponCategoryProficiencies`) − exhaustion penalty.
+  - `RollAttack(attackerRecord, attackerState, targetAC, weapon, advantageState, roller)` → `AttackRollResult` — d20 + attack bonus; natural 20 always hits, natural 1 always misses; supports advantage/disadvantage.
+  - `RollDamage(weapon, attackerRecord, isCritical, roller)` → `int` — weapon damage dice + ability modifier; on a critical hit the number of dice is doubled (2024 PHB: roll each die twice, modifier added once); result clamped to minimum 0.
+  - `CalculateArmorClass(record, state, inventory)` → `int` — unarmored: 10 + DEX; Light: base + full DEX; Medium: base + min(DEX, MaxDexBonus); Heavy: base only. Shield `AcBonus` added only when `HasShieldProficiency` is true.
+- **Tests** (`Tests/Editor/Systems/`):
+  - `InitiativeSystemTests` — 7 cases: null guards, DEX modifier, negative DEX, exhaustion penalty, advantage (takes higher), disadvantage (takes lower).
+  - `WeaponMasterySystemTests` — 13 cases: null state guard, null/no-mastery weapon, mastery absent/present in state, all 8 mastery property descriptors, `None` descriptor.
+  - `CombatSystemTests` — 24 cases: `GetAttackBonus` (null guards, STR with/without prof, Finesse both directions, Range, exhaustion); `RollAttack` (null guards, hit/miss, nat-20, nat-1, advantage, disadvantage); `RollDamage` (null guards, normal, crit dice doubling, ability modifier, negative clamp); `CalculateArmorClass` (null guards, unarmored, Light/Medium/Heavy, shield proficient/not).
+
+#### Design notes — Phase 8
+- `CombatSystem` is stateless; mastery effects, resistance/immunity, and action economy are all caller responsibilities.
+- `WeaponMasterySystem.GetMasteryEffect` returns a descriptor — it does not mutate any state. This keeps the system testable and decoupled.
+- The `CharacterState` parameter on `CalculateArmorClass` is reserved for future temporary AC bonuses (e.g. from spells or conditions); it is not used in the current implementation.
+
 #### Phase 7 — Survivability Systems
 
 - **`ConditionEffects`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` describing the mechanical flags of a condition: `SpeedReducedToZero`, `Incapacitated`, `CannotMove`, `CannotSpeak`, `AttackRollsHaveDisadvantage`, `AttackRollsHaveAdvantage`, `AttackRollsAgainstHaveAdvantage`, `AttackRollsAgainstHaveDisadvantage`, `AutoFailStrengthSaves`, `AutoFailDexteritySaves`, `MeleeHitsAreCritical`. All parameters optional (default `false`). `None` static instance for conditions with no combat-relevant flags. Documented simplifications: Prone melee/ranged distinction and Frightened visibility dependency deferred to caller; Petrified resistance rules omitted.

@@ -82,6 +82,16 @@ namespace DeeDeeR.DnD.Runtime.State
         [NonSerialized]
         public List<ITemporaryEffect> TemporaryEffects = new List<ITemporaryEffect>();
 
+        // ── Weapon Mastery ────────────────────────────────────────────────────
+
+        /// <summary>
+        /// The weapon mastery properties the character may currently apply.
+        /// Populated from class features and updated after each Long Rest when the character
+        /// re-selects their mastery weapons (per D&amp;D 2024 PHB). Characters without a mastery
+        /// class feature leave this set empty.
+        /// </summary>
+        public HashSet<WeaponMastery> WeaponMasteries = new HashSet<WeaponMastery>();
+
         // ── Inspiration ───────────────────────────────────────────────────────
 
         /// <summary>
