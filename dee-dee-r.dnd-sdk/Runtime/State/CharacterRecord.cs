@@ -64,6 +64,9 @@ namespace DeeDeeR.DnD.Runtime.State
 
         // ── Proficiencies ─────────────────────────────────────────────────────
 
+        /// <summary>Saving throws the character is proficient in (granted by starting class).</summary>
+        public HashSet<AbilityType> SavingThrowProficiencies = new HashSet<AbilityType>();
+
         /// <summary>Skills the character is proficient in.</summary>
         public HashSet<SkillType> SkillProficiencies = new HashSet<SkillType>();
 
