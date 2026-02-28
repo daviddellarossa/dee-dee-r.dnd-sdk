@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 7 — Survivability Systems
+
+- **`ConditionEffects`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` describing the mechanical flags of a condition: `SpeedReducedToZero`, `Incapacitated`, `CannotMove`, `CannotSpeak`, `AttackRollsHaveDisadvantage`, `AttackRollsHaveAdvantage`, `AttackRollsAgainstHaveAdvantage`, `AttackRollsAgainstHaveDisadvantage`, `AutoFailStrengthSaves`, `AutoFailDexteritySaves`, `MeleeHitsAreCritical`. All parameters optional (default `false`). `None` static instance for conditions with no combat-relevant flags. Documented simplifications: Prone melee/ranged distinction and Frightened visibility dependency deferred to caller; Petrified resistance rules omitted.
+- **`HitPointSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — mutates `CharacterState` in place:
+  - `ApplyDamage(state, amount, type)` — deducts damage (temp HP absorbed first); `DamageType` accepted for caller context but resistance/immunity must be applied by the caller before calling this method.
+  - `Heal(state, amount)` — heals up to maximum; also resets `DeathSaves` and removes `Condition.Unconscious` (regaining HP always ends the dying state).
+  - `GainTempHP(state, amount)` — grants temp HP; no stacking per 2024 PHB (takes higher value).
+  - `RollDeathSave(state, roller)` — d20: natural 20 → regain 1 HP + reset death saves + remove Unconscious; natural 1 → two failures; 10–19 → one success; 2–9 → one failure. Throws `InvalidOperationException` if character is not at 0 HP.
+  - `MassiveDamageCheck(state, amount)` — returns `true` when `amount * 2 >= Maximum` (avoids rounding on odd max HP).
+  - Negative/zero amounts are silently ignored by all mutation methods.
+- **`ConditionSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+  - `Apply(state, condition)` — idempotent add to `CharacterState.Conditions`.
+  - `Remove(state, condition)` — safe remove (no-op if not present).
+  - `GetD20Penalty(state)` → `state.Exhaustion.D20Penalty` (`level × 2`).
+  - `GetConditionEffects(condition)` → `ConditionEffects` — full mapping of all 14 conditions to their flag descriptors via a switch expression.
+- **Tests** (`Tests/Editor/Systems/`):
+  - `HitPointSystemTests` — 28 cases covering damage (temp HP absorption, floor-at-zero), healing (cap, death save reset, Unconscious removal), temp HP (no-stack), death saves (all roll outcomes including nat-1 double failure and nat-20 recovery), and massive damage (even/odd max HP thresholds).
+  - `ConditionSystemTests` — 22 cases covering Apply (idempotent, multiple), Remove (safe when absent), GetD20Penalty (all 6 exhaustion levels via TestCase), and GetConditionEffects (key conditions individually + all-conditions-no-throw sweep).
+
+#### Design notes — Phase 7
+- `HitPointSystem` does **not** automatically apply `Condition.Unconscious` when HP drops to 0 — that is the caller's responsibility. `Heal` does remove Unconscious automatically because the PHB states regaining any HP unconditionally ends the dying state.
+- `ConditionEffects` lives in `Core/Values` (pure value type, no Unity or game dependencies). `ConditionSystem` lives in `Runtime/Systems` (references `CharacterState`).
+- The `DamageType` parameter on `ApplyDamage` is reserved for a future resistance/immunity layer; the system does not act on it.
+
 #### Phase 6 — Character Creation Systems
 
 - **`SavingThrowProficiencies`** added to `CharacterRecord` (`HashSet<AbilityType>`) — was missing from Phase 5; required by `CharacterFactory` to apply starting class saving throw profs.
