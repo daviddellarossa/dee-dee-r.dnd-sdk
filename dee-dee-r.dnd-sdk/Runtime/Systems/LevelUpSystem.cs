@@ -79,7 +79,7 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (classToLevel == null) throw new ArgumentNullException(nameof(classToLevel));
 
             // Find an existing class entry or create a new one (multiclassing).
-            var classLevel = record.ClassLevels.Find(cl => cl.Class == classToLevel);
+            var classLevel = record.ClassLevels.Find(cl => cl != null && cl.Class == classToLevel);
             bool isNewClass = classLevel == null;
 
             if (isNewClass)
@@ -98,6 +98,18 @@ namespace DeeDeeR.DnD.Runtime.Systems
                 // Apply multiclass proficiencies (armor, weapon, shield — not saving throws).
                 ApplyMulticlassProficiencies(record, classToLevel);
             }
+
+            // Level cap: total character level and individual class level are both capped at 20.
+            // [Range(1,20)] on ClassLevel.Level only enforces this in the Unity inspector.
+            int totalLevel = 0;
+            foreach (var cl in record.ClassLevels)
+                if (cl != null) totalLevel += cl.Level;
+            if (totalLevel >= 20)
+                throw new InvalidOperationException(
+                    "Character has already reached the maximum total level of 20.");
+            if (classLevel.Level >= 20)
+                throw new InvalidOperationException(
+                    $"{classToLevel.name} is already at the maximum class level of 20.");
 
             classLevel.Level++;
 

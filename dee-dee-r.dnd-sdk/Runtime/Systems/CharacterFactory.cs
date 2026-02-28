@@ -85,6 +85,23 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (classLevels[0].Level <= 0)
                 throw new ArgumentException("Primary class entry must have a positive Level.", nameof(classLevels));
 
+            for (int i = 1; i < classLevels.Count; i++)
+            {
+                if (classLevels[i] == null)
+                    throw new ArgumentException($"Class level entry at index {i} must not be null.", nameof(classLevels));
+                if (classLevels[i].Class == null)
+                    throw new ArgumentNullException(nameof(classLevels), $"Class level entry at index {i} must have a non-null Class.");
+                if (classLevels[i].Level <= 0)
+                    throw new ArgumentException($"Class level entry at index {i} must have a positive Level.", nameof(classLevels));
+            }
+
+            var seen = new HashSet<ClassSO>();
+            for (int i = 0; i < classLevels.Count; i++)
+            {
+                if (!seen.Add(classLevels[i].Class))
+                    throw new ArgumentException($"Duplicate class entry at index {i}: each class may appear only once.", nameof(classLevels));
+            }
+
             var record = BuildRecord(characterName, playerName, species, subspecies, background,
                 baseScores, classLevels, chosenSkillProficiencies);
 

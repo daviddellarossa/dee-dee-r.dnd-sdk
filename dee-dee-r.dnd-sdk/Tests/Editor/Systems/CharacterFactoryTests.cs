@@ -156,6 +156,58 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
                     new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
         }
 
+        [Test]
+        public void Build_NullSecondaryClassEntry_ThrowsArgumentException()
+        {
+            var levels = new List<ClassLevel>
+            {
+                new ClassLevel { Class = _fighterClass, Level = 1 },
+                null,
+            };
+            Assert.Throws<ArgumentException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
+        [Test]
+        public void Build_SecondaryClassEntryWithNullClass_ThrowsArgumentNullException()
+        {
+            var levels = new List<ClassLevel>
+            {
+                new ClassLevel { Class = _fighterClass, Level = 1 },
+                new ClassLevel { Class = null, Level = 1 },
+            };
+            Assert.Throws<ArgumentNullException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
+        [Test]
+        public void Build_SecondaryClassEntryWithZeroLevel_ThrowsArgumentException()
+        {
+            var levels = new List<ClassLevel>
+            {
+                new ClassLevel { Class = _fighterClass, Level = 1 },
+                new ClassLevel { Class = _wizardClass,  Level = 0 },
+            };
+            Assert.Throws<ArgumentException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
+        [Test]
+        public void Build_DuplicateClassEntries_ThrowsArgumentException()
+        {
+            var levels = new List<ClassLevel>
+            {
+                new ClassLevel { Class = _fighterClass, Level = 3 },
+                new ClassLevel { Class = _fighterClass, Level = 2 },
+            };
+            Assert.Throws<ArgumentException>(() =>
+                _factory.Build("Thorin", "Player", _humanSpecies, null, _soldierBackground,
+                    new AbilityScoreSet(15, 13, 14, 10, 12, 8), levels));
+        }
+
         // ── Identity fields ───────────────────────────────────────────────────
 
         [Test]

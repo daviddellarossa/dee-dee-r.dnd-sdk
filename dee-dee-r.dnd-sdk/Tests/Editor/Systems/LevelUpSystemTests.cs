@@ -285,6 +285,30 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
             Assert.AreEqual(SpellSlotState.Empty, state.SpellSlots);
         }
 
+        // ── Level caps ────────────────────────────────────────────────────────
+
+        [Test]
+        public void LevelUp_ClassAlreadyAtLevel20_ThrowsInvalidOperationException()
+        {
+            var (record, state) = MakeFighter1();
+            record.ClassLevels[0].Level = 20;
+            // total level = 20; per-class level = 20 — both guards fire (total fires first).
+            Assert.Throws<InvalidOperationException>(
+                () => _system.LevelUp(record, state, _fighterClass));
+        }
+
+        [Test]
+        public void LevelUp_TotalLevelAlready20_ThrowsInvalidOperationException()
+        {
+            // Fighter 10 + Wizard 10 = total 20. Trying to level up Fighter throws.
+            var (record, state) = MakeFighter1();
+            record.ClassLevels[0].Level = 10;
+            record.ClassLevels.Add(new ClassLevel { Class = _wizardClass, Level = 10 });
+            state.HitDiceAvailable[DieType.D6] = 10;
+            Assert.Throws<InvalidOperationException>(
+                () => _system.LevelUp(record, state, _fighterClass));
+        }
+
         // ── Multiclass prerequisites ──────────────────────────────────────────
 
         [Test]

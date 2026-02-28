@@ -82,7 +82,7 @@ namespace DeeDeeR.DnD.Runtime.Systems
                 };
             }
 
-            effectiveLevel = Math.Min(effectiveLevel, 20);
+            effectiveLevel = Math.Clamp(effectiveLevel, 0, 20);
 
             if (effectiveLevel == 0) return SpellSlotState.Empty;
 
