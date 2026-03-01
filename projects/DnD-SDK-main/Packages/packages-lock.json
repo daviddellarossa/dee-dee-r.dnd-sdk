@@ -243,8 +243,21 @@
       },
       "url": "https://packages.unity.com"
     },
+    "dee-dee-r.cs-emitter": {
+      "version": "https://github.com/daviddellarossa/dee-dee-r.cs-emitter.git?path=dee-dee-r.cs-emitter",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "30f84cbc43796fb13a6627bb6bb5bdb074f233e2"
+    },
     "dee-dee-r.dnd-sdk": {
       "version": "file:/home/david/github/dee-dee-r.dnd-sdk/dee-dee-r.dnd-sdk",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "dee-dee-r.message-bus": {
+      "version": "file:/home/david/github/dee-dee-r.message-bus/dee-dee-r.message-bus",
       "depth": 0,
       "source": "local",
       "dependencies": {}
