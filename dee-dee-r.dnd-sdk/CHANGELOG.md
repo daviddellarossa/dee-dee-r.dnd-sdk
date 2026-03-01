@@ -13,19 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`Dee-Dee-R.Message-Bus.Runtime`** assembly reference added to `dee-dee-r.dnd-sdk.runtime.asmdef`.
 - **`EmptyArgs`** (`DeeDeeR.DnD.Runtime.Bus.Args`) — shared `readonly struct` placeholder for parameterless signals and queries.
 - **Args structs** (`DeeDeeR.DnD.Runtime.Bus.Args`) — 7 files, all `readonly struct` with named constructors:
-  - `CombatArgs.cs` — `AttackMadeArgs`, `DamageDealtArgs`, `HpChangedArgs`, `CharacterDiedArgs` (`Killer` defaults to `default` for environmental death), `TurnArgs`, `CritHitArgs`, `DeathSaveArgs`, `GetAttackBonusArgs`.
-  - `ConditionArgs.cs` — `ConditionChangedArgs` (shared by both `ConditionApplied` and `ConditionRemoved` signals), `ExhaustionArgs`.
-  - `SpellArgs.cs` — `SpellCastArgs` (caster, spell, slot level), `ConcentrationArgs`, `SlotArgs`, `SpellLearnedArgs`.
-  - `CharacterArgs.cs` — `LevelUpArgs`, `AbilityScoreArgs`, `FeatArgs`, `GetAbilityModifierArgs`, `GetSkillBonusArgs`.
-  - `RestArgs.cs` — `RestArgs` (character, rest type).
-  - `InventoryArgs.cs` — `EquipHand` enum (`Main`/`OffHand`), `ItemArgs` (quantity defaults to 1 for equip/unequip events), `GetEquippedWeaponArgs`.
+    - `CombatArgs.cs` — `AttackMadeArgs`, `DamageDealtArgs`, `HpChangedArgs`, `CharacterDiedArgs` (`Killer` defaults to `default` for environmental death), `TurnArgs`, `CritHitArgs`, `DeathSaveArgs`, `GetAttackBonusArgs`.
+    - `ConditionArgs.cs` — `ConditionChangedArgs` (shared by both `ConditionApplied` and `ConditionRemoved` signals), `ExhaustionArgs`.
+    - `SpellArgs.cs` — `SpellCastArgs` (caster, spell, slot level), `ConcentrationArgs`, `SlotArgs`, `SpellLearnedArgs`.
+    - `CharacterArgs.cs` — `LevelUpArgs`, `AbilityScoreArgs`, `FeatArgs`, `GetAbilityModifierArgs`, `GetSkillBonusArgs`.
+    - `RestArgs.cs` — `RestArgs` (character, rest type).
+    - `InventoryArgs.cs` — `EquipHand` enum (`Main`/`OffHand`), `ItemArgs` (quantity defaults to 1 for equip/unequip events), `GetEquippedWeaponArgs`.
 - **Category classes** (`DeeDeeR.DnD.Runtime.Bus`) — one `sealed class` per domain, each taking `IFrameScheduler` in the constructor:
-  - `CombatBusCategory` — 8 signals (`AttackMade`, `DamageDealt`, `HitPointsChanged`, `CharacterDied`, `TurnStarted`, `TurnEnded`, `CriticalHit`, `DeathSaveMade`) + 3 queries (`GetArmorClass`, `GetAttackBonus`, `GetPassivePerception`).
-  - `ConditionBusCategory` — 3 signals (`ConditionApplied`, `ConditionRemoved`, `ExhaustionChanged`) + 2 queries (`GetConditions → IReadOnlyCollection<Condition>`, `GetExhaustionLevel → int`).
-  - `SpellBusCategory` — 4 signals (`SpellCast`, `ConcentrationBroken`, `SpellSlotExpended`, `SpellLearned`) + 2 queries (`GetAvailableSpellSlots → SpellSlotState`, `GetConcentrationSpell → SpellSO`).
-  - `CharacterBusCategory` — 3 signals (`LeveledUp`, `AbilityScoreChanged`, `FeatGranted`) + 3 queries (`GetAbilityModifier`, `GetSkillBonus`, `GetProficiencyBonus`).
-  - `RestBusCategory` — 2 signals (`RestStarted`, `RestCompleted`) + 1 query (`GetHitDiceAvailable → IReadOnlyDictionary<DieType, int>`).
-  - `InventoryBusCategory` — 4 signals (`ItemEquipped`, `ItemUnequipped`, `ItemAdded`, `ItemRemoved`) + 2 queries (`GetEquippedWeapon → WeaponSO`, `GetEquippedArmor → ArmorSO`).
+    - `CombatBusCategory` — 8 signals (`AttackMade`, `DamageDealt`, `HitPointsChanged`, `CharacterDied`, `TurnStarted`, `TurnEnded`, `CriticalHit`, `DeathSaveMade`) + 3 queries (`GetArmorClass`, `GetAttackBonus`, `GetPassivePerception`).
+    - `ConditionBusCategory` — 3 signals (`ConditionApplied`, `ConditionRemoved`, `ExhaustionChanged`) + 2 queries (`GetConditions → IReadOnlyCollection<Condition>`, `GetExhaustionLevel → int`).
+    - `SpellBusCategory` — 4 signals (`SpellCast`, `ConcentrationBroken`, `SpellSlotExpended`, `SpellLearned`) + 2 queries (`GetAvailableSpellSlots → SpellSlotState`, `GetConcentrationSpell → SpellSO`).
+    - `CharacterBusCategory` — 3 signals (`LeveledUp`, `AbilityScoreChanged`, `FeatGranted`) + 3 queries (`GetAbilityModifier`, `GetSkillBonus`, `GetProficiencyBonus`).
+    - `RestBusCategory` — 2 signals (`RestStarted`, `RestCompleted`) + 1 query (`GetHitDiceAvailable → IReadOnlyDictionary<DieType, int>`).
+    - `InventoryBusCategory` — 4 signals (`ItemEquipped`, `ItemUnequipped`, `ItemAdded`, `ItemRemoved`) + 2 queries (`GetEquippedWeapon → WeaponSO`, `GetEquippedArmor → ArmorSO`).
 - **`DnDSdkBus`** (`DeeDeeR.DnD.Runtime.Bus`) — top-level container; constructor takes `IFrameScheduler` and owns all 6 category instances. Not a static singleton.
 
 #### Design notes — Phase 10
@@ -33,6 +33,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ConditionChangedArgs` is reused for both `ConditionApplied` and `ConditionRemoved`; `TurnArgs` is reused for both `TurnStarted` and `TurnEnded` — the signal field name provides the semantic distinction.
 - `GetConditions` returns `IReadOnlyCollection<Condition>` (compatible with `HashSet<T>` in .NET 4.x) rather than `IReadOnlySet<Condition>` (only in .NET 5+).
 - No tests for Phase 10 — bus plumbing is pure wiring with no branching logic to unit-test. Integration-level verification is deferred to Phase 11 (MonoBehaviour components).
+
+
+#### Phase 9 — Spell & Rest Systems
+
+- **`SpellSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+    - `CanCastSpell(state, spell, slotLevel)` → `bool` — cantrips (level 0) require `slotLevel == 0`; levelled spells require `slotLevel ≥ spell.Level` and a slot available in `SpellSlotState`. Does not check whether the spell is known/prepared (caller's responsibility via `SpellbookState`).
+    - `ExpendSlot(state, slotLevel)` — deducts one slot at the given level; throws `InvalidOperationException` if none available.
+    - `BeginConcentration(state, spell)` — sets `CharacterState.ConcentrationSpell`; silently replaces any existing concentration (caller informs the player).
+    - `BreakConcentration(state)` — clears `ConcentrationSpell`; safe when not concentrating (no-op).
+- **`RestSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+    - `TakeShortRest(record, state, hitDiceToSpend, roller)` — spends the requested Hit Dice (each roll + CON modifier summed, then healed); deducts spent dice from `HitDiceAvailable`; validates availability before touching any state; throws `InvalidOperationException` if more dice requested than available.
+    - `TakeLongRest(record, state)` — 2024 PHB full recovery: restores all HP (clears Temporary HP), regains all Hit Dice (recalculated from `ClassLevels`), recovers all Spell Slots via `MulticlassSystem`, reduces Exhaustion by 1, resets action-economy flags (`ActionUsed`, `BonusActionUsed`, `ReactionUsed`).
+- **Tests** (`Tests/Editor/Systems/`):
+    - `SpellSystemTests` — 23 cases: null guards; `CanCastSpell` (cantrip slot rules, levelled spell below/at/above slot level, upcast, no slot); `ExpendSlot` (null guard, invalid level, no slot, decrements count); `BeginConcentration` (null guards, sets spell, overwrites existing); `BreakConcentration` (null guard, clears, idempotent when not concentrating).
+    - `RestSystemTests` — 20 cases: null guards; short rest (heal = roll + CON mod, capped at max, dice deducted, over-spend throws, negative total no-ops, empty dict no-ops); long rest (HP fully restored, temp HP cleared, hit dice restored, non-caster keeps empty slots, exhaustion −1, exhaustion floor at 0, action flags reset).
+
+#### Design notes — Phase 9
+- `SpellSystem` does not recover slots — that is `RestSystem`'s responsibility.
+- `RestSystem.TakeLongRest` restores **all** Hit Dice per 2024 PHB (the 2014 rule of recovering half no longer applies).
+- Class-specific Short Rest slot recovery (Warlock) is deferred to Phase 11 components.
+- `BreakConcentration` is a no-op if the character is not concentrating — no guard needed by callers.
 
 #### Phase 8 — Combat Systems
 
