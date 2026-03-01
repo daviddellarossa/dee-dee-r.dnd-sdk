@@ -84,8 +84,11 @@ namespace DeeDeeR.DnD.Runtime.Systems
                 state.HitDiceAvailable[die] -= count;
             }
 
+            // Use HitPointSystem.Heal so that regaining HP above 0 also resets death saves
+            // and removes Condition.Unconscious — consistent with PHB "regaining any HP ends
+            // the dying state" and with HitPointSystem.Heal's documented behaviour.
             if (totalHeal > 0)
-                state.HitPoints = state.HitPoints.WithHeal(totalHeal);
+                new HitPointSystem().Heal(state, totalHeal);
         }
 
         // ── Long Rest ─────────────────────────────────────────────────────────
@@ -107,7 +110,11 @@ namespace DeeDeeR.DnD.Runtime.Systems
             if (state  == null) throw new ArgumentNullException(nameof(state));
 
             // Restore all HP; Temporary HP expire at the end of a Long Rest (2024 PHB).
-            state.HitPoints = new HitPointState(state.HitPoints.Maximum, state.HitPoints.Maximum);
+            // Also reset death saves and remove Unconscious — regaining HP above 0 ends the
+            // dying state, consistent with HitPointSystem.Heal behaviour.
+            state.HitPoints  = new HitPointState(state.HitPoints.Maximum, state.HitPoints.Maximum);
+            state.DeathSaves = DeathSaveState.Empty;
+            state.Conditions.Remove(Condition.Unconscious);
 
             // Regain all Hit Dice (2024 PHB: all expended Hit Dice are recovered on a Long Rest).
             state.HitDiceAvailable = ComputeMaxHitDice(record);

@@ -138,6 +138,26 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
             Assert.AreEqual(5, state.HitPoints.Current);
         }
 
+        [Test]
+        public void TakeShortRest_HealingFromZeroHP_ResetsDeathSavesAndRemovesUnconscious()
+        {
+            // Character was dying (0 HP, Unconscious, 2 death-save failures).
+            // Spending a hit die should restore HP and end the dying state.
+            var state = new CharacterState
+            {
+                HitPoints        = new HitPointState(0, 20),
+                DeathSaves       = new DeathSaveState().WithFailure().WithFailure(),
+                HitDiceAvailable = new Dictionary<DieType, int> { [DieType.D10] = 1 }
+            };
+            state.Conditions.Add(Condition.Unconscious);
+
+            _system.TakeShortRest(MakeRecord(con: 10), state, Dice(DieType.D10, 1), new FakeRollProvider(6));
+
+            Assert.IsTrue(state.HitPoints.Current > 0);
+            Assert.AreEqual(0, state.DeathSaves.Failures);
+            Assert.IsFalse(state.Conditions.Contains(Condition.Unconscious));
+        }
+
         // ── TakeLongRest — null guards ────────────────────────────────────────
 
         [Test]
@@ -224,6 +244,23 @@ namespace DeeDeeR.DnD.Tests.Editor.Systems
         }
 
         // ── TakeLongRest — Action flags ───────────────────────────────────────
+
+        [Test]
+        public void TakeLongRest_ResetsDeathSavesAndRemovesUnconscious()
+        {
+            // Character was at 0 HP before resting — long rest should end the dying state.
+            var state = new CharacterState
+            {
+                HitPoints  = new HitPointState(0, 20),
+                DeathSaves = new DeathSaveState().WithFailure()
+            };
+            state.Conditions.Add(Condition.Unconscious);
+
+            _system.TakeLongRest(MakeRecord(), state);
+
+            Assert.AreEqual(0, state.DeathSaves.Failures);
+            Assert.IsFalse(state.Conditions.Contains(Condition.Unconscious));
+        }
 
         [Test]
         public void TakeLongRest_ResetsActionEconomyFlags()
