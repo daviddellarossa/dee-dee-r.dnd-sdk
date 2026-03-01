@@ -70,6 +70,14 @@ namespace DeeDeeR.DnD.Runtime.Components
                 return false;
 
             var bus = DnDSdkRunner.Bus;
+            if (bus == null)
+            {
+                Debug.LogError(
+                    $"[{nameof(SpellCasterComponent)}] DnDSdkRunner.Bus is null. " +
+                    "Cannot cast spell — no bus to publish signals. " +
+                    "Ensure a DnDSdkRunner is active in the scene.", this);
+                return false;
+            }
 
             if (slotLevel > 0)
             {
@@ -101,8 +109,15 @@ namespace DeeDeeR.DnD.Runtime.Components
             if (spell == null) return;
 
             _spells.BreakConcentration(_character.State);
-            DnDSdkRunner.Bus.Spell.ConcentrationBroken.PublishBroadcast(
-                new ConcentrationArgs(_character.EndpointId, spell));
+
+            var bus = DnDSdkRunner.Bus;
+            if (bus != null)
+                bus.Spell.ConcentrationBroken.PublishBroadcast(
+                    new ConcentrationArgs(_character.EndpointId, spell));
+            else
+                Debug.LogWarning(
+                    $"[{nameof(SpellCasterComponent)}] Concentration broken on '{spell.name}' " +
+                    "but DnDSdkRunner.Bus is null — ConcentrationBroken signal not published.", this);
         }
 
         // ── Private ───────────────────────────────────────────────────────────

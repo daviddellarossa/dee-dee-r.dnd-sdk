@@ -33,6 +33,9 @@ namespace DeeDeeR.DnD.Runtime.Components
         /// <summary>The DnD SDK bus for the current scene context.</summary>
         public static DnDSdkBus Bus { get; private set; }
 
+        // Tracks the bus this instance created so OnDestroy only clears what it owns.
+        private DnDSdkBus _ownedBus;
+
         private void Awake()
         {
             if (_scheduler == null)
@@ -40,12 +43,26 @@ namespace DeeDeeR.DnD.Runtime.Components
                     $"[{nameof(DnDSdkRunner)}] Scheduler reference is null. " +
                     "Assign a FrameSchedulerBehaviour in the Inspector.");
 
-            Bus = new DnDSdkBus(_scheduler);
+            if (Bus != null)
+            {
+                Debug.LogError(
+                    $"[{nameof(DnDSdkRunner)}] A DnDSdkBus is already active. " +
+                    "Only one DnDSdkRunner may be active at a time. " +
+                    "This instance will not overwrite the existing bus.", this);
+                return;
+            }
+
+            _ownedBus = new DnDSdkBus(_scheduler);
+            Bus       = _ownedBus;
         }
 
         private void OnDestroy()
         {
-            Bus = null;
+            // Only clear the static reference if this instance is the one that set it.
+            if (Bus == _ownedBus)
+                Bus = null;
+
+            _ownedBus = null;
         }
     }
 }
