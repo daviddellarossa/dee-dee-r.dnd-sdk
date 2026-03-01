@@ -44,7 +44,17 @@ namespace DeeDeeR.DnD.Runtime.Components
             _character.State.BonusActionUsed = false;
             _character.State.ReactionUsed    = false;
 
-            DnDSdkRunner.Bus.Combat.TurnStarted.PublishBroadcast(
+            var bus = DnDSdkRunner.Bus;
+            if (bus == null)
+            {
+                Debug.LogError(
+                    $"[{nameof(CombatantComponent)}] DnDSdkRunner.Bus is null. " +
+                    "TurnStarted signal not published. " +
+                    "Ensure a DnDSdkRunner is active in the scene.", this);
+                return;
+            }
+
+            bus.Combat.TurnStarted.PublishBroadcast(
                 new TurnArgs(_character.EndpointId));
         }
 
@@ -54,7 +64,17 @@ namespace DeeDeeR.DnD.Runtime.Components
         /// </summary>
         public void EndTurn()
         {
-            DnDSdkRunner.Bus.Combat.TurnEnded.PublishBroadcast(
+            var bus = DnDSdkRunner.Bus;
+            if (bus == null)
+            {
+                Debug.LogError(
+                    $"[{nameof(CombatantComponent)}] DnDSdkRunner.Bus is null. " +
+                    "TurnEnded signal not published. " +
+                    "Ensure a DnDSdkRunner is active in the scene.", this);
+                return;
+            }
+
+            bus.Combat.TurnEnded.PublishBroadcast(
                 new TurnArgs(_character.EndpointId));
         }
 
@@ -100,6 +120,20 @@ namespace DeeDeeR.DnD.Runtime.Components
             var result   = _combat.RollAttack(_character.Record, _character.State, targetAC, weapon, advantage, roller);
 
             var bus = DnDSdkRunner.Bus;
+            if (bus == null)
+            {
+                Debug.LogError(
+                    $"[{nameof(CombatantComponent)}] DnDSdkRunner.Bus is null. " +
+                    "Attack signals not published. " +
+                    "Ensure a DnDSdkRunner is active in the scene.", this);
+
+                if (result.Hit)
+                    target.ApplyDamage(
+                        _combat.RollDamage(weapon, _character.Record, result.Critical, roller),
+                        weapon.DamageType);
+
+                return result;
+            }
 
             bus.Combat.AttackMade.PublishBroadcast(
                 new AttackMadeArgs(_character.EndpointId, target.EndpointId, result, weapon));
