@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9 — Spell & Rest Systems
+
+- **`SpellSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+  - `CanCastSpell(state, spell, slotLevel)` → `bool` — cantrips (level 0) require `slotLevel == 0`; levelled spells require `slotLevel ≥ spell.Level` and a slot available in `SpellSlotState`. Does not check whether the spell is known/prepared (caller's responsibility via `SpellbookState`).
+  - `ExpendSlot(state, slotLevel)` — deducts one slot at the given level; throws `InvalidOperationException` if none available.
+  - `BeginConcentration(state, spell)` — sets `CharacterState.ConcentrationSpell`; silently replaces any existing concentration (caller informs the player).
+  - `BreakConcentration(state)` — clears `ConcentrationSpell`; safe when not concentrating (no-op).
+- **`RestSystem`** (`DeeDeeR.DnD.Runtime.Systems`):
+  - `TakeShortRest(record, state, hitDiceToSpend, roller)` — spends the requested Hit Dice (each roll + CON modifier summed, then healed); deducts spent dice from `HitDiceAvailable`; validates availability before touching any state; throws `InvalidOperationException` if more dice requested than available.
+  - `TakeLongRest(record, state)` — 2024 PHB full recovery: restores all HP (clears Temporary HP), regains all Hit Dice (recalculated from `ClassLevels`), recovers all Spell Slots via `MulticlassSystem`, reduces Exhaustion by 1, resets action-economy flags (`ActionUsed`, `BonusActionUsed`, `ReactionUsed`).
+- **Tests** (`Tests/Editor/Systems/`):
+  - `SpellSystemTests` — 23 cases: null guards; `CanCastSpell` (cantrip slot rules, levelled spell below/at/above slot level, upcast, no slot); `ExpendSlot` (null guard, invalid level, no slot, decrements count); `BeginConcentration` (null guards, sets spell, overwrites existing); `BreakConcentration` (null guard, clears, idempotent when not concentrating).
+  - `RestSystemTests` — 20 cases: null guards; short rest (heal = roll + CON mod, capped at max, dice deducted, over-spend throws, negative total no-ops, empty dict no-ops); long rest (HP fully restored, temp HP cleared, hit dice restored, non-caster keeps empty slots, exhaustion −1, exhaustion floor at 0, action flags reset).
+
+#### Design notes — Phase 9
+- `SpellSystem` does not recover slots — that is `RestSystem`'s responsibility.
+- `RestSystem.TakeLongRest` restores **all** Hit Dice per 2024 PHB (the 2014 rule of recovering half no longer applies).
+- Class-specific Short Rest slot recovery (Warlock) is deferred to Phase 11 components.
+- `BreakConcentration` is a no-op if the character is not concentrating — no guard needed by callers.
+
 #### Phase 8 — Combat Systems
 
 - **`MasteryEffect`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` describing the mechanical effect of a weapon mastery property: `GrantsFreeAttack` (Cleave), `DealsDamageOnMiss` (Graze), `OffHandAttackIsFree` (Nick), `PushesTarget`/`PushDistance` (Push — 10 ft), `SapsTarget` (Sap), `SlowsTarget`/`SpeedReduction` (Slow — 10 ft), `TopplesToTarget` (Topple), `GrantsAttackerAdvantage` (Vex). All parameters optional (default `false`/`0`). `None` static instance.
