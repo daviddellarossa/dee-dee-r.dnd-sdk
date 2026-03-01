@@ -1,3 +1,4 @@
+using System;
 using DeeDeeR.DnD.Runtime.Bus.Args;
 using DeeDeeR.MessageBus.Runtime.Core;
 
@@ -49,6 +50,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public CombatBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             AttackMade           = new Signal<AttackMadeArgs>(scheduler);
             DamageDealt          = new Signal<DamageDealtArgs>(scheduler);
             HitPointsChanged     = new Signal<HpChangedArgs>(scheduler);

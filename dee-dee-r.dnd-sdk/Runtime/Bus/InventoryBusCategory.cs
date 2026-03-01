@@ -1,3 +1,4 @@
+using System;
 using DeeDeeR.DnD.Runtime.Bus.Args;
 using DeeDeeR.DnD.Runtime.Data;
 using DeeDeeR.MessageBus.Runtime.Core;
@@ -35,6 +36,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public InventoryBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             ItemEquipped      = new Signal<ItemArgs>(scheduler);
             ItemUnequipped    = new Signal<ItemArgs>(scheduler);
             ItemAdded         = new Signal<ItemArgs>(scheduler);
