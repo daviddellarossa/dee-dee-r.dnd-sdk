@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DeeDeeR.DnD.Core.Enums;
 using DeeDeeR.DnD.Runtime.Bus.Args;
@@ -33,6 +34,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public ConditionBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             ConditionApplied   = new Signal<ConditionChangedArgs>(scheduler);
             ConditionRemoved   = new Signal<ConditionChangedArgs>(scheduler);
             ExhaustionChanged  = new Signal<ExhaustionArgs>(scheduler);

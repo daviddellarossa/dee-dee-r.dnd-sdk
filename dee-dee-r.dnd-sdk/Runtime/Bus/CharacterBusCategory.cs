@@ -1,3 +1,4 @@
+using System;
 using DeeDeeR.DnD.Runtime.Bus.Args;
 using DeeDeeR.MessageBus.Runtime.Core;
 
@@ -34,6 +35,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public CharacterBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             LeveledUp           = new Signal<LevelUpArgs>(scheduler);
             AbilityScoreChanged = new Signal<AbilityScoreArgs>(scheduler);
             FeatGranted         = new Signal<FeatArgs>(scheduler);

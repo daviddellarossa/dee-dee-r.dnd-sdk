@@ -3,7 +3,7 @@ using DeeDeeR.MessageBus.Runtime.Core;
 
 namespace DeeDeeR.DnD.Runtime.Bus.Args
 {
-    /// <summary>Which weapon slot to query via <see cref="InventoryBusCategory.GetEquippedWeapon"/>.</summary>
+    /// <summary>Which weapon slot to query via <see cref="DeeDeeR.DnD.Runtime.Bus.InventoryBusCategory.GetEquippedWeapon"/>.</summary>
     public enum EquipHand { Main, OffHand }
 
     /// <summary>

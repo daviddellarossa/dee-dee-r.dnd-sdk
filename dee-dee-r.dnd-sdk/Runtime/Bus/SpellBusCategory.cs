@@ -1,3 +1,4 @@
+using System;
 using DeeDeeR.DnD.Core.Values;
 using DeeDeeR.DnD.Runtime.Bus.Args;
 using DeeDeeR.DnD.Runtime.Data;
@@ -39,6 +40,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public SpellBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             SpellCast              = new Signal<SpellCastArgs>(scheduler);
             ConcentrationBroken    = new Signal<ConcentrationArgs>(scheduler);
             SpellSlotExpended      = new Signal<SlotArgs>(scheduler);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DeeDeeR.DnD.Core.Enums;
 using DeeDeeR.DnD.Runtime.Bus.Args;
@@ -29,6 +30,7 @@ namespace DeeDeeR.DnD.Runtime.Bus
 
         public RestBusCategory(IFrameScheduler scheduler)
         {
+            if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             RestStarted         = new Signal<RestArgs>(scheduler);
             RestCompleted       = new Signal<RestArgs>(scheduler);
             GetHitDiceAvailable = new Query<EmptyArgs, IReadOnlyDictionary<DieType, int>>(scheduler);
