@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 11 — MonoBehaviour Components
+
+- **`DnDSdkRunner`** (`DeeDeeR.DnD.Runtime.Components`) — scene-level owner of the `DnDSdkBus` instance. Execution order −100. Inspector field for `FrameSchedulerBehaviour`; creates the bus in `Awake`, nulls `DnDSdkBus.Bus` in `OnDestroy`. Provides `static DnDSdkBus Bus { get; private set; }` accessor.
+- **`CharacterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — holds `CharacterRecord`, `CharacterState`, and `InventoryState`. Execution order −50. Resolves `EndpointId` from a serialized string (falls back to `GameObject.name`) in `Awake`. Registers 13 query handlers in `Start`; unregisters all in `OnDestroy`.
+  - Combat: `GetArmorClass`, `GetAttackBonus`, `GetPassivePerception`
+  - Condition: `GetConditions`, `GetExhaustionLevel`
+  - Spell: `GetAvailableSpellSlots`, `GetConcentrationSpell`
+  - Character: `GetAbilityModifier`, `GetSkillBonus`, `GetProficiencyBonus`
+  - Rest: `GetHitDiceAvailable`
+  - Inventory: `GetEquippedWeapon`, `GetEquippedArmor`
+  - Public mutation methods: `ApplyDamage(amount, type)` and `Heal(amount)` — both delegate to `HitPointSystem` and publish `HitPointsChanged` if the HP value changes.
+- **`CombatantComponent`** (`DeeDeeR.DnD.Runtime.Components`) — requires `CharacterComponent`. Execution order −25. Turn management (`StartTurn` resets action flags and publishes `TurnStarted`; `EndTurn` publishes `TurnEnded`). `PerformAttack(target, weapon, advantage, roller)` resolves the full attack chain: rolls attack, publishes `AttackMade` (always), `CriticalHit` (nat-20), `DamageDealt` (on hit), and calls `target.ApplyDamage()` which publishes `HitPointsChanged`.
+- **`SpellCasterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — requires `CharacterComponent`. Execution order −25. Subscribes to `HitPointsChanged` in `OnEnable`; unsubscribes in `OnDisable`. `TryCastSpell(spell, slotLevel)` calls `SpellSystem.CanCastSpell`, expends the slot, begins/transfers concentration, publishes `SpellSlotExpended` and `SpellCast`. `BreakConcentration()` clears state and publishes `ConcentrationBroken`; concentration is automatically broken when the character takes damage (via the `HitPointsChanged` subscription).
+
+#### Design notes — Phase 11
+- `DnDSdkRunner.Bus` is a static accessor, not a singleton — the static field is cleared in `OnDestroy` so stale references are surfaced as null immediately.
+- `CharacterComponent.EndpointId` is set in `Awake` (execution order −50) so sibling components (`SpellCasterComponent`, `CombatantComponent`) can safely read it during their own `Awake` and `OnEnable` calls.
+- `CharacterComponent.RegisterQueries` uses lambdas that close over `Record`/`State`/`Inventory` — these are live reads (no snapshotting), ensuring query responses always reflect current state.
+- No tests for Phase 11 — MonoBehaviour components require the Unity test runner (Play Mode or Edit Mode with scene setup), which is outside the current NUnit Editor test scope.
+
 #### Phase 10 — Message Bus
 
 - **`Dee-Dee-R.Message-Bus.Runtime`** assembly reference added to `dee-dee-r.dnd-sdk.runtime.asmdef`.
