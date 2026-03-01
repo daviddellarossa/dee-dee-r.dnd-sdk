@@ -8,6 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 10 — Message Bus
+
+- **`Dee-Dee-R.Message-Bus.Runtime`** assembly reference added to `dee-dee-r.dnd-sdk.runtime.asmdef`.
+- **`EmptyArgs`** (`DeeDeeR.DnD.Runtime.Bus.Args`) — shared `readonly struct` placeholder for parameterless signals and queries.
+- **Args structs** (`DeeDeeR.DnD.Runtime.Bus.Args`) — 7 files, all `readonly struct` with named constructors:
+  - `CombatArgs.cs` — `AttackMadeArgs`, `DamageDealtArgs`, `HpChangedArgs`, `CharacterDiedArgs` (`Killer` defaults to `default` for environmental death), `TurnArgs`, `CritHitArgs`, `DeathSaveArgs`, `GetAttackBonusArgs`.
+  - `ConditionArgs.cs` — `ConditionChangedArgs` (shared by both `ConditionApplied` and `ConditionRemoved` signals), `ExhaustionArgs`.
+  - `SpellArgs.cs` — `SpellCastArgs` (caster, spell, slot level), `ConcentrationArgs`, `SlotArgs`, `SpellLearnedArgs`.
+  - `CharacterArgs.cs` — `LevelUpArgs`, `AbilityScoreArgs`, `FeatArgs`, `GetAbilityModifierArgs`, `GetSkillBonusArgs`.
+  - `RestArgs.cs` — `RestArgs` (character, rest type).
+  - `InventoryArgs.cs` — `EquipHand` enum (`Main`/`OffHand`), `ItemArgs` (quantity defaults to 1 for equip/unequip events), `GetEquippedWeaponArgs`.
+- **Category classes** (`DeeDeeR.DnD.Runtime.Bus`) — one `sealed class` per domain, each taking `IFrameScheduler` in the constructor:
+  - `CombatBusCategory` — 8 signals (`AttackMade`, `DamageDealt`, `HitPointsChanged`, `CharacterDied`, `TurnStarted`, `TurnEnded`, `CriticalHit`, `DeathSaveMade`) + 3 queries (`GetArmorClass`, `GetAttackBonus`, `GetPassivePerception`).
+  - `ConditionBusCategory` — 3 signals (`ConditionApplied`, `ConditionRemoved`, `ExhaustionChanged`) + 2 queries (`GetConditions → IReadOnlyCollection<Condition>`, `GetExhaustionLevel → int`).
+  - `SpellBusCategory` — 4 signals (`SpellCast`, `ConcentrationBroken`, `SpellSlotExpended`, `SpellLearned`) + 2 queries (`GetAvailableSpellSlots → SpellSlotState`, `GetConcentrationSpell → SpellSO`).
+  - `CharacterBusCategory` — 3 signals (`LeveledUp`, `AbilityScoreChanged`, `FeatGranted`) + 3 queries (`GetAbilityModifier`, `GetSkillBonus`, `GetProficiencyBonus`).
+  - `RestBusCategory` — 2 signals (`RestStarted`, `RestCompleted`) + 1 query (`GetHitDiceAvailable → IReadOnlyDictionary<DieType, int>`).
+  - `InventoryBusCategory` — 4 signals (`ItemEquipped`, `ItemUnequipped`, `ItemAdded`, `ItemRemoved`) + 2 queries (`GetEquippedWeapon → WeaponSO`, `GetEquippedArmor → ArmorSO`).
+- **`DnDSdkBus`** (`DeeDeeR.DnD.Runtime.Bus`) — top-level container; constructor takes `IFrameScheduler` and owns all 6 category instances. Not a static singleton.
+
+#### Design notes — Phase 10
+- Parameterless queries all share the `EmptyArgs` placeholder, keeping the type system clean without generating per-query empty structs.
+- `ConditionChangedArgs` is reused for both `ConditionApplied` and `ConditionRemoved`; `TurnArgs` is reused for both `TurnStarted` and `TurnEnded` — the signal field name provides the semantic distinction.
+- `GetConditions` returns `IReadOnlyCollection<Condition>` (compatible with `HashSet<T>` in .NET 4.x) rather than `IReadOnlySet<Condition>` (only in .NET 5+).
+- No tests for Phase 10 — bus plumbing is pure wiring with no branching logic to unit-test. Integration-level verification is deferred to Phase 11 (MonoBehaviour components).
+
 #### Phase 8 — Combat Systems
 
 - **`MasteryEffect`** (`DeeDeeR.DnD.Core.Values`) — immutable `readonly struct` describing the mechanical effect of a weapon mastery property: `GrantsFreeAttack` (Cleave), `DealsDamageOnMiss` (Graze), `OffHandAttackIsFree` (Nick), `PushesTarget`/`PushDistance` (Push — 10 ft), `SapsTarget` (Sap), `SlowsTarget`/`SpeedReduction` (Slow — 10 ft), `TopplesToTarget` (Topple), `GrantsAttackerAdvantage` (Vex). All parameters optional (default `false`/`0`). `None` static instance.

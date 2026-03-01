@@ -3,7 +3,8 @@
     "rootNamespace": "DeeDeeR.DnD.Runtime",
     "references": [
         "dee-dee-r.dnd-sdk.core",
-        "Unity.Localization"
+        "Unity.Localization",
+        "Dee-Dee-R.Message-Bus.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
