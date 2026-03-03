@@ -8,25 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12 — XPSystem
+
+- **`LevelingMode`** (`DeeDeeR.DnD.Core.Enums`) — `ExperiencePoints` / `Milestone`. Lives in Core (zero Unity dependency).
+- **`XPSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — stateless class, pure table lookups:
+  - `GetXPThreshold(int level)` → `int` — total XP required to reach `level` (1–20) per the D&D 2024 PHB table; throws `ArgumentOutOfRangeException` outside [1, 20].
+  - `GetLevelFromXP(int totalXP)` → `int` — reverse lookup returning level 1–20; negative XP clamped to level 1, XP beyond 355,000 returns 20.
+  - `IsReadyToLevelUp(int currentLevel, int totalXP, LevelingMode)` → `bool` — `ExperiencePoints`: true when `totalXP ≥` next level's threshold; always false at level 20. `Milestone`: always false (advancement is a DM narrative decision, not a calculation). Throws `ArgumentOutOfRangeException` for invalid `currentLevel`.
+  - `GetXPToNextLevel(int totalXP)` → `int` — remaining XP to the next level; 0 at level 20.
+  - `MinLevel` / `MaxLevel` public constants (1 / 20).
+- **Tests** (`Tests/Editor/Systems/XPSystemTests`) — 26 cases:
+  - `GetXPThreshold`: all 20 table values via `[TestCase]`; out-of-range levels throw.
+  - `GetLevelFromXP`: just-below / just-at boundary for representative tiers, negative XP → 1, beyond-cap → 20.
+  - `IsReadyToLevelUp`: below/at/above threshold (XP mode); level-20 cap; invalid `currentLevel` throws; milestone mode always false via `[TestCase]`.
+  - `GetXPToNextLevel`: level 1 start, partial progress (correct remainder), exact threshold, max level, negative XP treated as 0.
+
+#### Design notes — Phase 12
+- `LevelingMode.Milestone` returns `false` from `IsReadyToLevelUp` rather than throwing — callers need not branch on leveling mode before calling.
+- No XP field added to `CharacterRecord` — tracking accumulated XP is the caller's (game's) responsibility; `XPSystem` is a pure calculation helper.
+
 #### Phase 11 — MonoBehaviour Components
 
-- **`DnDSdkRunner`** (`DeeDeeR.DnD.Runtime.Components`) — scene-level owner of the `DnDSdkBus` instance. Execution order −100. Inspector field for `FrameSchedulerBehaviour`; creates the bus in `Awake`, nulls `DnDSdkBus.Bus` in `OnDestroy`. Provides `static DnDSdkBus Bus { get; private set; }` accessor.
-- **`CharacterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — holds `CharacterRecord`, `CharacterState`, and `InventoryState`. Execution order −50. Resolves `EndpointId` from a serialized string (falls back to `GameObject.name`) in `Awake`. Registers 13 query handlers in `Start`; unregisters all in `OnDestroy`.
+- **`DnDSdkRunner`** (`DeeDeeR.DnD.Runtime.Components`) — `[DefaultExecutionOrder(-100)]`, `[DisallowMultipleComponent]`. Inspector field: `FrameSchedulerBehaviour _scheduler`. Creates and owns a `DnDSdkBus` in `Awake`; exposes it via `static DnDSdkBus Bus { get; private set; }`. Ownership is tracked via a private `_ownedBus` field: if `Bus` is already non-null when `Awake` runs, logs an error and skips creation (multi-scene / duplicate runner guard). `OnDestroy` only clears `Bus` when `Bus == _ownedBus`.
+- **`CharacterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — `[DefaultExecutionOrder(-50)]`, `[DisallowMultipleComponent]`. Holds `CharacterRecord Record`, `CharacterState State`, `InventoryState Inventory` as public fields. `EndpointId` resolved in `Awake` from a serialized `_endpointId` string (falls back to `gameObject.name`). Registers 13 query handlers in `Start`; unregisters all in `OnDestroy`.
   - Combat: `GetArmorClass`, `GetAttackBonus`, `GetPassivePerception`
   - Condition: `GetConditions`, `GetExhaustionLevel`
   - Spell: `GetAvailableSpellSlots`, `GetConcentrationSpell`
   - Character: `GetAbilityModifier`, `GetSkillBonus`, `GetProficiencyBonus`
   - Rest: `GetHitDiceAvailable`
   - Inventory: `GetEquippedWeapon`, `GetEquippedArmor`
-  - Public mutation methods: `ApplyDamage(amount, type)` and `Heal(amount)` — both delegate to `HitPointSystem` and publish `HitPointsChanged` if the HP value changes.
-- **`CombatantComponent`** (`DeeDeeR.DnD.Runtime.Components`) — requires `CharacterComponent`. Execution order −25. Turn management (`StartTurn` resets action flags and publishes `TurnStarted`; `EndTurn` publishes `TurnEnded`). `PerformAttack(target, weapon, advantage, roller)` resolves the full attack chain: rolls attack, publishes `AttackMade` (always), `CriticalHit` (nat-20), `DamageDealt` (on hit), and calls `target.ApplyDamage()` which publishes `HitPointsChanged`.
-- **`SpellCasterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — requires `CharacterComponent`. Execution order −25. Subscribes to `HitPointsChanged` in `OnEnable`; unsubscribes in `OnDisable`. `TryCastSpell(spell, slotLevel)` calls `SpellSystem.CanCastSpell`, expends the slot, begins/transfers concentration, publishes `SpellSlotExpended` and `SpellCast`. `BreakConcentration()` clears state and publishes `ConcentrationBroken`; concentration is automatically broken when the character takes damage (via the `HitPointsChanged` subscription).
+  - Public mutation methods: `ApplyDamage(amount, type)` and `Heal(amount)` — both delegate to `HitPointSystem` and publish `HitPointsChanged` when HP changes.
+- **`CombatantComponent`** (`DeeDeeR.DnD.Runtime.Components`) — `[DefaultExecutionOrder(-25)]`, `[RequireComponent(CharacterComponent)]`. `StartTurn()` unconditionally resets `ActionUsed`/`BonusActionUsed`/`ReactionUsed` (local state is always valid), then publishes `TurnStarted` only when `Bus` is non-null (null → `LogError` + return). `EndTurn()` checks bus null before publishing `TurnEnded`. `PerformAttack(target, weapon, advantage, roller)` rolls the attack unconditionally; if bus is null logs an error but still calls `target.ApplyDamage()` on a hit (HP change remains correct), then returns; otherwise publishes `AttackMade` (always), `CriticalHit` (nat-20), `DamageDealt` (on hit), and delegates HP mutation to `target.ApplyDamage()`.
+- **`SpellCasterComponent`** (`DeeDeeR.DnD.Runtime.Components`) — `[DefaultExecutionOrder(-25)]`, `[RequireComponent(CharacterComponent)]`. Subscribes to `HitPointsChanged` in `OnEnable`; unsubscribes in `OnDisable`. `TryCastSpell(spell, slotLevel)` validates with `CanCastSpell` then **checks `Bus` null before any state mutation** (logs error, returns `false` without expending a slot if null); on success expends the slot, begins concentration if applicable, publishes `SpellSlotExpended` + `SpellCast`. `BreakConcentration()` always clears `ConcentrationSpell` (state mutation is unconditional); if bus is null logs a warning (signal not published — observability only). Concentration is automatically broken on damage via the `HitPointsChanged` subscription (filtered to own `EndpointId`).
 
 #### Design notes — Phase 11
-- `DnDSdkRunner.Bus` is a static accessor, not a singleton — the static field is cleared in `OnDestroy` so stale references are surfaced as null immediately.
-- `CharacterComponent.EndpointId` is set in `Awake` (execution order −50) so sibling components (`SpellCasterComponent`, `CombatantComponent`) can safely read it during their own `Awake` and `OnEnable` calls.
-- `CharacterComponent.RegisterQueries` uses lambdas that close over `Record`/`State`/`Inventory` — these are live reads (no snapshotting), ensuring query responses always reflect current state.
-- No tests for Phase 11 — MonoBehaviour components require the Unity test runner (Play Mode or Edit Mode with scene setup), which is outside the current NUnit Editor test scope.
+- Execution order: `DnDSdkRunner` (−100) → `CharacterComponent` (−50) → `CombatantComponent`/`SpellCasterComponent` (−25). `EndpointId` is set in `Awake` so siblings can safely read it in their own `Awake`/`OnEnable`.
+- Query lambdas close over `Record`/`State`/`Inventory` directly — live reads on each call, no snapshotting.
+- Two-tier null-bus strategy: methods where a partial mutation would be incorrect (`TryCastSpell` — would lose the slot without recording the cast) bail before any mutation; methods where the local state change is always correct (`StartTurn` flag reset, `BreakConcentration` clearing the concentration field) proceed and only warn/error about the missed signal.
+- No unit tests for Phase 11 — components are thin wiring; all business logic is tested at the system level. Integration verification requires the Unity Play Mode test runner.
+
+#### Fixes (Phase 10 — post-Copilot review)
+- **All 6 bus category constructors** — added `ArgumentNullException` guard for the `IFrameScheduler scheduler` parameter; previously null was silently accepted and caused a deferred `NullReferenceException` on first publish.
+- **`InventoryArgs.cs`** — `<see cref="..."/>` on `EquipHand` now uses the fully-qualified type name `DeeDeeR.DnD.Runtime.Bus.InventoryBusCategory.GetEquippedWeapon`; the short form does not resolve across assembly boundaries in XML doc.
 
 #### Phase 10 — Message Bus
 
