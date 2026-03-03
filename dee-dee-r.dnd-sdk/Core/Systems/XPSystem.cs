@@ -1,7 +1,7 @@
 using System;
 using DeeDeeR.DnD.Core.Enums;
 
-namespace DeeDeeR.DnD.Runtime.Systems
+namespace DeeDeeR.DnD.Core.Systems
 {
     /// <summary>
     /// Stateless helper for Experience Point (XP) thresholds and level calculation,

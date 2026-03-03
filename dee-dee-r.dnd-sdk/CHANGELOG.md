@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Phase 12 — XPSystem
 
 - **`LevelingMode`** (`DeeDeeR.DnD.Core.Enums`) — `ExperiencePoints` / `Milestone`. Lives in Core (zero Unity dependency).
-- **`XPSystem`** (`DeeDeeR.DnD.Runtime.Systems`) — stateless class, pure table lookups:
+- **`XPSystem`** (`DeeDeeR.DnD.Core.Systems`) — stateless class, pure table lookups:
   - `GetXPThreshold(int level)` → `int` — total XP required to reach `level` (1–20) per the D&D 2024 PHB table; throws `ArgumentOutOfRangeException` outside [1, 20].
   - `GetLevelFromXP(int totalXP)` → `int` — reverse lookup returning level 1–20; negative XP clamped to level 1, XP beyond 355,000 returns 20.
   - `IsReadyToLevelUp(int currentLevel, int totalXP, LevelingMode)` → `bool` — `ExperiencePoints`: true when `totalXP ≥` next level's threshold; always false at level 20. `Milestone`: always false (advancement is a DM narrative decision, not a calculation). Throws `ArgumentOutOfRangeException` for invalid `currentLevel`.
@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Design notes — Phase 12
 - `LevelingMode.Milestone` returns `false` from `IsReadyToLevelUp` rather than throwing — callers need not branch on leveling mode before calling.
+- `XPSystem` lives in `Core/Systems` (`DeeDeeR.DnD.Core.Systems`) alongside `AbilitySystem`, `ProficiencySystem`, and `DiceRoller` — it has zero Unity or Runtime dependencies and fits the same pattern. Initially placed in `Runtime/Systems` by mistake; moved after Copilot review.
 - No XP field added to `CharacterRecord` — tracking accumulated XP is the caller's (game's) responsibility; `XPSystem` is a pure calculation helper.
 
 #### Phase 11 — MonoBehaviour Components

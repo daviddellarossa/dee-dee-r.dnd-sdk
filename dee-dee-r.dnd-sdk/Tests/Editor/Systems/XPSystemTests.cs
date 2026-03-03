@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 using DeeDeeR.DnD.Core.Enums;
-using DeeDeeR.DnD.Runtime.Systems;
+using DeeDeeR.DnD.Core.Systems;
 
 namespace DeeDeeR.DnD.Tests.Editor.Systems
 {
