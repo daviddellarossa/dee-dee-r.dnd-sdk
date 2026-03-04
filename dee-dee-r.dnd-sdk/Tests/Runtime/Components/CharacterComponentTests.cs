@@ -186,11 +186,14 @@ namespace DeeDeeR.DnD.Tests.Runtime.Components
 
             yield return null; // Let Start() run → queries registered.
 
-            // No armor, no shield: AC = 10 + DEX mod (DEX mod = 0 with default scores).
+            // Set DEX 10 (modifier 0) so unarmoured AC = 10 + 0 = 10.
+            // Assignment is done after yield so no frame boundary can reset the struct field.
+            ch.Record.AbilityScores = new AbilityScoreSet(10, 10, 10, 10, 10, 10);
+
             bool responded = DnDSdkRunner.Bus!.Combat.GetArmorClass.TryQueryUnicast(
                 ch.EndpointId, default, out int ac);
             Assert.IsTrue(responded, "Query should have a registered handler.");
-            Assert.AreEqual(10, ac);
+            Assert.AreEqual(10, ac, "Unarmoured AC with DEX 10 must be 10.");
         }
 
         [UnityTest]
