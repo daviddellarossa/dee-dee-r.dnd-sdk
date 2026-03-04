@@ -1,9 +1,12 @@
 {
     "name": "dee-dee-r.dnd-sdk.tests.runtime",
-    "rootNamespace": "",
+    "rootNamespace": "DeeDeeR.DnD.Tests.Runtime",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "dee-dee-r.dnd-sdk.core",
+        "dee-dee-r.dnd-sdk.runtime",
+        "Dee-Dee-R.Message-Bus.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
