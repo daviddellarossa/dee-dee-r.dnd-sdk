@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+    <!-- Header: level + school -->
+    <ui:VisualElement class="dnd-spell-header">
+        <uie:PropertyField binding-path="Level" />
+        <uie:PropertyField binding-path="School" />
+    </ui:VisualElement>
+
+    <!-- Casting -->
+    <ui:Foldout name="foldout-casting" text="Casting" value="true" class="dnd-foldout">
+        <uie:PropertyField name="field-casting-time" binding-path="CastingTime" />
+        <uie:PropertyField name="field-reaction-trigger" binding-path="_reactionTrigger" label="Reaction Trigger" />
+    </ui:Foldout>
+
+    <!-- Range -->
+    <ui:Foldout name="foldout-range" text="Range" value="true" class="dnd-foldout">
+        <uie:PropertyField name="field-range-type" binding-path="RangeType" />
+        <uie:PropertyField name="field-range-distance" binding-path="RangeDistance" label="Distance (ft)" />
+        <uie:PropertyField name="field-self-area" binding-path="_selfAreaDescription" label="Self Area Description" />
+    </ui:Foldout>
+
+    <!-- Components -->
+    <ui:Foldout name="foldout-components" text="Components" value="true" class="dnd-foldout">
+        <uie:PropertyField name="field-components" binding-path="Components" />
+        <uie:PropertyField name="field-material-desc" binding-path="_materialDescription" label="Material Description" />
+    </ui:Foldout>
+
+    <!-- Duration & Properties -->
+    <ui:Foldout name="foldout-duration" text="Duration &amp; Properties" value="true" class="dnd-foldout">
+        <uie:PropertyField binding-path="Duration" />
+        <uie:PropertyField binding-path="IsConcentration" />
+        <uie:PropertyField binding-path="IsRitual" />
+    </ui:Foldout>
+
+    <!-- Description -->
+    <ui:Foldout name="foldout-description" text="Description" value="true" class="dnd-foldout">
+        <uie:PropertyField binding-path="_description" label="Description" />
+        <uie:PropertyField binding-path="_higherLevelDescription" label="At Higher Levels" />
+    </ui:Foldout>
+
+    <!-- Class Lists -->
+    <ui:Foldout name="foldout-class-lists" text="Class Lists" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="ClassLists" />
+    </ui:Foldout>
+
+</ui:UXML>

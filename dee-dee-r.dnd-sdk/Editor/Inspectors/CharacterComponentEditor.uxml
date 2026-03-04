@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+    <!-- Endpoint ID -->
+    <ui:VisualElement class="dnd-endpoint-row">
+        <ui:Label text="Endpoint ID" class="dnd-label-bold" />
+        <uie:PropertyField name="field-endpoint-id" binding-path="_endpointId" label="" />
+    </ui:VisualElement>
+
+    <!-- Warning: no DnDSdkRunner in scene -->
+    <ui:HelpBox name="helpbox-no-runner"
+                text="No DnDSdkRunner found in the scene. Add one to enable bus queries."
+                message-type="Warning" />
+
+    <!-- Runtime summary (play mode only) -->
+    <ui:VisualElement name="panel-runtime" class="dnd-runtime-panel">
+        <ui:Label name="label-runtime-name"  class="dnd-runtime-stat" />
+        <ui:Label name="label-runtime-level" class="dnd-runtime-stat" />
+        <ui:Label name="label-runtime-hp"    class="dnd-runtime-stat" />
+        <ui:Label name="label-runtime-conditions" class="dnd-runtime-stat" />
+    </ui:VisualElement>
+
+    <!-- Record -->
+    <ui:Foldout name="foldout-record" text="Character Record" value="true" class="dnd-foldout">
+        <uie:PropertyField binding-path="Record" />
+    </ui:Foldout>
+
+    <!-- State -->
+    <ui:Foldout name="foldout-state" text="Character State" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="State" />
+    </ui:Foldout>
+
+    <!-- Inventory -->
+    <ui:Foldout name="foldout-inventory" text="Inventory" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="Inventory" />
+    </ui:Foldout>
+
+</ui:UXML>

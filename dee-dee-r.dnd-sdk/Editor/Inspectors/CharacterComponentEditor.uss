@@ -1,0 +1,39 @@
+.dnd-foldout {
+    margin-bottom: 4px;
+    border-left-width: 2px;
+    border-left-color: rgba(255, 215, 0, 0.45);
+    padding-left: 4px;
+    padding-bottom: 2px;
+}
+
+.dnd-foldout > .unity-foldout__toggle {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.dnd-label-bold {
+    -unity-font-style: bold;
+    min-width: 80px;
+}
+
+.dnd-endpoint-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.dnd-endpoint-row > PropertyField {
+    flex: 1;
+}
+
+.dnd-runtime-panel {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    padding: 6px;
+    margin-bottom: 6px;
+}
+
+.dnd-runtime-stat {
+    font-size: 11px;
+    margin-bottom: 2px;
+}

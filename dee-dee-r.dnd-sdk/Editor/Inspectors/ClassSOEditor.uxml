@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+    <!-- Core -->
+    <ui:Foldout name="foldout-core" text="Core" value="true" class="dnd-foldout">
+        <uie:PropertyField binding-path="HitDie" />
+        <uie:PropertyField binding-path="PrimaryAbilities" />
+    </ui:Foldout>
+
+    <!-- Proficiencies -->
+    <ui:Foldout name="foldout-proficiencies" text="Proficiencies" value="true" class="dnd-foldout">
+        <uie:PropertyField binding-path="SavingThrowProficiencies" />
+        <uie:PropertyField binding-path="ArmorProficiencies" />
+        <uie:PropertyField binding-path="WeaponCategoryProficiencies" />
+        <uie:PropertyField binding-path="HasShieldProficiency" />
+        <uie:PropertyField binding-path="ToolProficiencies" />
+        <uie:PropertyField binding-path="SkillChoices" />
+    </ui:Foldout>
+
+    <!-- Spellcasting -->
+    <ui:Foldout name="foldout-spellcasting" text="Spellcasting" value="true" class="dnd-foldout">
+        <uie:PropertyField name="field-caster-type" binding-path="CasterType" />
+        <uie:PropertyField name="field-spellcasting-ability" binding-path="SpellcastingAbility" />
+    </ui:Foldout>
+
+    <!-- Multiclassing -->
+    <ui:Foldout name="foldout-multiclass" text="Multiclassing" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="SubclassLevel" />
+        <uie:PropertyField binding-path="MulticlassPrerequisites" />
+    </ui:Foldout>
+
+    <!-- Features -->
+    <ui:Foldout name="foldout-features" text="Features" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="Features" />
+    </ui:Foldout>
+
+    <!-- Starting Equipment -->
+    <ui:Foldout name="foldout-equipment" text="Starting Equipment" value="false" class="dnd-foldout">
+        <uie:PropertyField binding-path="StartingEquipment" />
+    </ui:Foldout>
+
+</ui:UXML>

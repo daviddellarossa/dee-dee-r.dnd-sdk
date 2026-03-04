@@ -1,3 +1,19 @@
 {
-	"name": "dee-dee-r.dnd-sdk.editor"
+    "name": "dee-dee-r.dnd-sdk.editor",
+    "rootNamespace": "DeeDeeR.DnD.Editor",
+    "references": [
+        "dee-dee-r.dnd-sdk.core",
+        "dee-dee-r.dnd-sdk.runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
