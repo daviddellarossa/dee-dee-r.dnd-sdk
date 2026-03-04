@@ -1,4 +1,3 @@
-using System;
 using DeeDeeR.DnD.Runtime.Bus;
 using DeeDeeR.MessageBus.Runtime.Core;
 using UnityEngine;
@@ -39,9 +38,12 @@ namespace DeeDeeR.DnD.Runtime.Components
         private void Awake()
         {
             if (_scheduler == null)
-                throw new InvalidOperationException(
+            {
+                Debug.LogError(
                     $"[{nameof(DnDSdkRunner)}] Scheduler reference is null. " +
                     "Assign a FrameSchedulerBehaviour in the Inspector.");
+                return;
+            }
 
             if (Bus != null)
             {
