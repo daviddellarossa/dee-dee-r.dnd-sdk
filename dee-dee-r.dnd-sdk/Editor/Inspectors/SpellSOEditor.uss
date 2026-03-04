@@ -1,0 +1,22 @@
+.dnd-foldout {
+    margin-bottom: 4px;
+    border-left-width: 2px;
+    border-left-color: rgba(255, 215, 0, 0.45);
+    padding-left: 4px;
+    padding-bottom: 2px;
+}
+
+.dnd-foldout > .unity-foldout__toggle {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.dnd-spell-header {
+    flex-direction: row;
+    margin-bottom: 6px;
+}
+
+.dnd-spell-header > * {
+    flex: 1;
+    margin-right: 4px;
+}

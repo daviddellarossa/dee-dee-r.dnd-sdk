@@ -1,0 +1,74 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+    <!-- Step indicator -->
+    <ui:Label name="label-step" class="dnd-wizard-step-label" />
+
+    <ui:VisualElement class="dnd-wizard-separator" />
+
+    <!-- ── Page 1: Identity ──────────────────────────────────────────── -->
+    <ui:VisualElement name="page-identity" class="dnd-wizard-page">
+        <ui:Label text="Step 1 — Identity" class="dnd-wizard-page-title" />
+        <ui:TextField name="field-char-name" label="Character Name" />
+        <ui:TextField name="field-player-name" label="Player Name" />
+        <ui:HelpBox name="helpbox-identity-error" message-type="Error" />
+    </ui:VisualElement>
+
+    <!-- ── Page 2: Species ───────────────────────────────────────────── -->
+    <ui:VisualElement name="page-species" class="dnd-wizard-page">
+        <ui:Label text="Step 2 — Species" class="dnd-wizard-page-title" />
+        <uie:ObjectField name="field-species" label="Species" allow-scene-objects="false" />
+        <uie:ObjectField name="field-subspecies" label="Subspecies (optional)" allow-scene-objects="false" />
+        <ui:HelpBox name="helpbox-species-error" message-type="Error" />
+    </ui:VisualElement>
+
+    <!-- ── Page 3: Background ────────────────────────────────────────── -->
+    <ui:VisualElement name="page-background" class="dnd-wizard-page">
+        <ui:Label text="Step 3 — Background" class="dnd-wizard-page-title" />
+        <uie:ObjectField name="field-background" label="Background" allow-scene-objects="false" />
+        <ui:Label name="label-background-preview" class="dnd-wizard-preview-text" />
+        <ui:HelpBox name="helpbox-background-error" message-type="Error" />
+    </ui:VisualElement>
+
+    <!-- ── Page 4: Primary Class ─────────────────────────────────────── -->
+    <ui:VisualElement name="page-class" class="dnd-wizard-page">
+        <ui:Label text="Step 4 — Primary Class" class="dnd-wizard-page-title" />
+        <uie:ObjectField name="field-class" label="Class" allow-scene-objects="false" />
+        <ui:IntegerField name="field-class-level" label="Level" value="1" />
+        <ui:Label name="label-skill-pool-title" text="Choose skills:" class="dnd-label-section" />
+        <ui:VisualElement name="container-skill-toggles" class="dnd-skill-toggle-group" />
+        <ui:Label name="label-skill-count" class="dnd-wizard-preview-text" />
+        <ui:HelpBox name="helpbox-class-error" message-type="Error" />
+    </ui:VisualElement>
+
+    <!-- ── Page 5: Ability Scores ─────────────────────────────────────── -->
+    <ui:VisualElement name="page-scores" class="dnd-wizard-page">
+        <ui:Label text="Step 5 — Ability Scores" class="dnd-wizard-page-title" />
+        <ui:VisualElement class="dnd-score-grid">
+            <ui:IntegerField name="field-str" label="Strength"     value="10" />
+            <ui:IntegerField name="field-dex" label="Dexterity"    value="10" />
+            <ui:IntegerField name="field-con" label="Constitution" value="10" />
+            <ui:IntegerField name="field-int" label="Intelligence" value="10" />
+            <ui:IntegerField name="field-wis" label="Wisdom"       value="10" />
+            <ui:IntegerField name="field-cha" label="Charisma"     value="10" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+
+    <!-- ── Page 6: Summary ────────────────────────────────────────────── -->
+    <ui:VisualElement name="page-summary" class="dnd-wizard-page">
+        <ui:Label text="Step 6 — Summary" class="dnd-wizard-page-title" />
+        <ui:Label name="label-summary" class="dnd-wizard-summary-text" />
+        <ui:HelpBox text="Note: AbilityScoreSet is not natively serialized by Unity. The computed HP is applied, but ability scores must be re-entered if the scene is reloaded before a custom save system is in place."
+                    message-type="Info" />
+    </ui:VisualElement>
+
+    <ui:VisualElement class="dnd-wizard-separator" />
+
+    <!-- Navigation -->
+    <ui:VisualElement class="dnd-wizard-nav">
+        <ui:Button name="btn-back" text="Back" />
+        <ui:VisualElement class="dnd-wizard-nav-spacer" />
+        <ui:Button name="btn-next" text="Next" />
+        <ui:Button name="btn-create" text="Create Character" />
+    </ui:VisualElement>
+
+</ui:UXML>

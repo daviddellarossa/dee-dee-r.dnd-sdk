@@ -1,0 +1,65 @@
+.dnd-wizard-step-label {
+    font-size: 11px;
+    color: rgba(255, 215, 0, 0.8);
+    margin: 4px 0;
+    -unity-font-style: italic;
+}
+
+.dnd-wizard-page-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    color: rgb(230, 195, 100);
+}
+
+.dnd-wizard-page {
+    margin-bottom: 4px;
+}
+
+.dnd-wizard-separator {
+    height: 1px;
+    background-color: rgba(255, 215, 0, 0.2);
+    margin: 6px 0;
+}
+
+.dnd-wizard-nav {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.dnd-wizard-nav-spacer {
+    flex: 1;
+}
+
+.dnd-wizard-nav Button {
+    min-width: 80px;
+    margin-left: 4px;
+}
+
+.dnd-wizard-preview-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.65);
+    white-space: normal;
+    margin-top: 4px;
+}
+
+.dnd-wizard-summary-text {
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.dnd-label-section {
+    -unity-font-style: bold;
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.dnd-skill-toggle-group {
+    flex-direction: column;
+    margin-left: 8px;
+}
+
+.dnd-score-grid {
+    flex-direction: column;
+}

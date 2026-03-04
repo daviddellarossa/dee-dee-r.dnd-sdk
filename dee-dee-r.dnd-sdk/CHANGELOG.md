@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 13 — Editor Tools (UI Toolkit)
+
+- **`DnDEditorUtility`** (`DeeDeeR.DnD.Editor`) — internal static helper; `LoadUxml(string)` and `LoadUss(string)` find assets by name via `AssetDatabase.FindAssets` (avoids hardcoded package paths).
+- **`ClassSOEditor`** (`DeeDeeR.DnD.Editor.Inspectors`, `[CustomEditor(typeof(ClassSO))]`) — UI Toolkit inspector. Six collapsible foldouts: Core, Proficiencies, Spellcasting, Multiclassing, Features, Starting Equipment. `SpellcastingAbility` field hidden when `CasterType == None` (initial + reactive via `RegisterValueChangeCallback`). UXML layout in `ClassSOEditor.uxml`; left-gold-border accent style in `ClassSOEditor.uss`.
+- **`SpellSOEditor`** (`DeeDeeR.DnD.Editor.Inspectors`, `[CustomEditor(typeof(SpellSO))]`) — UI Toolkit inspector. Six foldouts: Casting, Range, Components, Duration & Properties, Description, Class Lists. Four conditional fields:
+  - `_reactionTrigger` — visible only when `CastingTime == Reaction`.
+  - `RangeDistance` — visible only when `RangeType == Ranged`.
+  - `_selfAreaDescription` — visible only when `RangeType == Self`.
+  - `_materialDescription` — visible only when `Components` flags include `Material`.
+- **`CharacterComponentEditor`** (`DeeDeeR.DnD.Editor.Inspectors`, `[CustomEditor(typeof(CharacterComponent))]`) — UI Toolkit inspector. Shows `_endpointId` prominently; displays a warning `HelpBox` when no `DnDSdkRunner` is present in the scene. In Play mode, a live runtime summary panel updates every 500 ms (via `schedule.Execute`) showing character name, player, total level, HP (including temp), and active conditions.
+- **`CharacterCreationWizard`** (`DeeDeeR.DnD.Editor.Wizards`, `EditorWindow`) — multi-step character creation assistant, opened via **DnD SDK → Character Creation Wizard**. Six steps:
+  1. **Identity** — character name (required), player name.
+  2. **Species** — `ObjectField` for `SpeciesSO`; `SubspeciesSO` field shown only when the chosen species has subspecies.
+  3. **Background** — `ObjectField` for `BackgroundSO`; preview label shows ASIs, skill proficiencies, and origin feat.
+  4. **Primary Class** — `ObjectField` for `ClassSO`, level `IntegerField` (1–20), skill toggle group built from `SkillChoices.Pool` limited to `SkillChoices.Count` selections.
+  5. **Ability Scores** — six `IntegerField` elements (STR/DEX/CON/INT/WIS/CHA).
+  6. **Summary & Create** — calls `CharacterFactory.Build()` to preview computed HP; **Create** button creates a new `GameObject` in the active scene with `CharacterComponent` attached, `Record` and `State` populated from the factory, registered with Undo. Notes the `AbilityScoreSet` serialization limitation in an info `HelpBox`.
+
+#### Design notes — Phase 13
+- All inspectors use `CreateInspectorGUI()` (returns `VisualElement`); the wizard uses `CreateGUI()`. IMGUI `OnInspectorGUI` is not used anywhere.
+- UXML/USS assets are loaded via `AssetDatabase.FindAssets` by file name — no hardcoded resource paths. If a UXML is missing, a fallback `HelpBox` is shown instead of throwing.
+- `root.Bind(serializedObject)` auto-binds all `PropertyField` elements; conditional visibility is applied after binding using `RegisterValueChangeCallback` for reactive updates.
+- `CharacterComponent.Record` and `.State` are directly assigned from `CharacterFactory.Build()` result in the wizard. `AbilityScoreSet` (a `readonly struct` without `[Serializable]`) is not persisted by Unity's built-in serializer; a warning is logged and displayed on creation.
+- The runtime summary in `CharacterComponentEditor` polls via `schedule.Execute(...).Every(500)` — no `Update()` override needed.
+
 #### Phase 12 — XPSystem
 
 - **`LevelingMode`** (`DeeDeeR.DnD.Core.Enums`) — `ExperiencePoints` / `Milestone`. Lives in Core (zero Unity dependency).
