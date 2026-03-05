@@ -1,0 +1,19 @@
+{
+    "name": "dee-dee-r.dnd-sdk.samples.basiccombat",
+    "rootNamespace": "DeeDeeR.DnD.Samples.BasicCombat",
+    "references": [
+        "dee-dee-r.dnd-sdk.core",
+        "dee-dee-r.dnd-sdk.runtime",
+        "Dee-Dee-R.Message-Bus.Runtime",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
