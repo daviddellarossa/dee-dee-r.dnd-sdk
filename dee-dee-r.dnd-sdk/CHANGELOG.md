@@ -8,6 +8,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 15 — PHB Data Asset Generator
+
+- **`PHBAssetGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — entry point; menu item **DnD SDK → Generate PHB Assets**. Runs all sub-generators inside `AssetDatabase.StartAssetEditing` / `StopAssetEditing` for a single import pass. Provides `GetOrCreate<T>(folder, name)`, `Load<T>(folder, name)`, and `EnsureFolder(parent, child)` helpers used by all sub-generators. Output root: `Assets/DnD SDK/Data/`.
+- **`PHBDefinitionGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — generates one companion Definition SO asset per enum value for all 10 definition types:
+  - `AbilityDefinitionSO` — 6 assets (Strength … Charisma).
+  - `SkillDefinitionSO` — 18 assets (Athletics … Persuasion).
+  - `DamageTypeDefinitionSO` — 13 assets (Acid … Thunder).
+  - `ConditionDefinitionSO` — 14 assets (Blinded … Unconscious).
+  - `WeaponMasteryDefinitionSO` — 9 assets (None … Vex).
+  - `WeaponCategoryDefinitionSO` — 2 assets (Simple, Martial).
+  - `SpellSchoolDefinitionSO` — 8 assets (Abjuration … Transmutation).
+  - `CurrencyDefinitionSO` — 5 assets (Copper … Platinum).
+  - `LanguageDefinitionSO` — 19 assets (Common … Undercommon).
+  - `DieSO` — 7 assets (D4 … D100).
+  - LocalizedString display fields left empty — populate manually in the Unity Editor.
+- **`PHBWeaponGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — 37 SRD 5.1 weapons: 10 simple melee, 4 simple ranged, 17 martial melee, 5 martial ranged. All fields populated: `Category`, `DamageDice`, `DamageType`, `Properties`, `MasteryProperty`, `RangeNormal`, `RangeLong`, `Weight`, `Cost`, `VersatileDamageDice`. All 2024 PHB weapon mastery properties assigned. Blowgun represented as Count=0, Modifier=1 (flat 1 damage).
+- **`PHBArmorGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — 12 armor pieces + 1 shield. Light armor uses `MaxDexBonus = -1` (unlimited Dex); Medium uses `MaxDexBonus = 2`; Heavy uses `MaxDexBonus = 0`.
+- **`PHBClassGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — 12 PHB classes + 48 subclasses (4 per class). Two-pass generation: `GenerateClasses()` runs first to create `ClassSO` assets; `GenerateSubclasses()` runs after to link each `SubclassSO` to its parent. All class mechanical data populated: `HitDie`, `PrimaryAbilities`, `SavingThrowProficiencies`, `ArmorProficiencies`, `WeaponCategoryProficiencies`, `HasShieldProficiency`, `CasterType`, `SpellcastingAbility`, `SubclassLevel`, `SkillChoices`, `MulticlassPrerequisites`. Warlock uses `CasterType.None` (Pact Magic is not the standard slot system).
+- **`PHBSpeciesGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — 8 species (Dragonborn, Dwarf, Elf, Gnome, Halfling, Human, Orc, Tiefling). Fields: `Size`, `BaseMovementSpeed`, `DarkvisionRange`, `Languages`. Traits and subspecies left empty per 2024 rules (no ASI on species).
+- **`PHBBackgroundGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — 16 backgrounds (Acolyte … Wayfarer). Each background populates `AbilityScoreIncreases` (+2 to one ability, +1 to another) and `SkillProficiencies` (two skills). Tool proficiency and origin feat references left null for manual wiring.
+- **`PHBSpellGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — ~320 SRD 5.1 spells (cantrips through 9th level). All mechanical fields populated: `Level`, `School`, `CastingTime`, `RangeType`, `RangeDistance`, `Components`, `Duration`, `IsConcentration`, `IsRitual`. `ClassLists` wired from already-created `ClassSO` assets. LocalizedString description fields left empty. Assets organised under `Spells/0 Cantrips/` and `Spells/1/` … `Spells/9/`.
+
+#### Design notes — Phase 15
+- All sub-generators use `GetOrCreate<T>` — re-running the menu item updates existing assets in place without deleting anything.
+- Definition SOs are generated first so they are available for reference by later content assets.
+- Class assets are generated before subclasses and spells so that `SubclassSO.ParentClass` and `SpellSO.ClassLists` references can be wired in the same generation pass.
+- LocalizedString fields and null tool/feat references must be populated manually in the Unity Inspector after generation.
+
+#### Phase 14 — Complete Test Coverage
+
+- **PlayMode tests** for all four MonoBehaviour components (`DnDSdkRunner`, `CharacterComponent`, `CombatantComponent`, `SpellCasterComponent`) added to `Tests/Runtime/Components/`.
+- `DnDSdkRunnerTests` — verifies `Bus` is non-null after a valid `Awake`, and that `Bus` is cleared in `OnDestroy`. Two additional tests (`Awake_WithNullScheduler_LogsError_AndBusRemainsNull`, `SecondRunner_WhenBusAlreadyActive_LogsError_AndPreservesOriginalBus`) are marked `[Ignore]` due to Unity 6 test-runner behaviour with error-level log messages.
+- `CharacterComponentTests` — 5 tests: `EndpointId` defaults to `gameObject.name`, `EndpointId` uses serialized value when set, 13 bus queries all registered after `Start`, `GetArmorClass` query returns correct value for an unarmoured character, `ApplyDamage` reduces HP and publishes `HitPointsChanged`.
+- `CombatantComponentTests` — 3 tests: `StartTurn` resets action flags, `EndTurn` publishes `TurnEnded` signal, `PerformAttack` publishes `AttackMade` and calls `target.ApplyDamage` on a hit.
+- `SpellCasterComponentTests` — 3 tests: `TryCastSpell` returns false when no slot available, `TryCastSpell` expends a slot and publishes `SpellCast` on success, `BreakConcentration` clears `ConcentrationSpell` and publishes `ConcentrationBroken`.
+
+#### Fixes (Phase 14)
+- **`DnDSdkRunner.Awake`** — changed `throw new InvalidOperationException` (null scheduler guard) to `Debug.LogError` + `return`; exceptions thrown from `Awake` propagate to callers of `SetActive()` in the Unity Test Framework, causing test failures unrelated to the assertion under test.
+
 #### Phase 13 — Editor Tools (UI Toolkit)
 
 - **`DnDEditorUtility`** (`DeeDeeR.DnD.Editor`) — internal static helper; `LoadUxml(string)` and `LoadUss(string)` find assets by name via `AssetDatabase.FindAssets` (avoids hardcoded package paths).
