@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2ab33fd31287306797a6d9cd406e6ca, type: 3}
+  m_Name: Half Plate
+  m_EditorClassIdentifier: dee-dee-r.dnd-sdk.runtime::DeeDeeR.DnD.Runtime.Data.ArmorSO
+  Category: 1
+  BaseArmorClass: 15
+  MaxDexBonus: 2
+  StrengthRequirement: 0
+  StealthDisadvantage: 1
+  Weight: 40
+  Cost:
+    CP: 0
+    SP: 0
+    EP: 0
+    GP: 750
+    PP: 0

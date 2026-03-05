@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbcc3f8138da2647b87c596274325277, type: 3}
+  m_Name: Ranger
+  m_EditorClassIdentifier: dee-dee-r.dnd-sdk.runtime::DeeDeeR.DnD.Runtime.Data.ClassSO
+  HitDie: 10
+  PrimaryAbilities: 0100000004000000
+  SavingThrowProficiencies: 0000000001000000
+  ArmorProficiencies: 0000000001000000
+  WeaponCategoryProficiencies: 0000000001000000
+  HasShieldProficiency: 1
+  ToolProficiencies: []
+  SkillChoices:
+    Pool: 09000000000000000a00000006000000070000000c000000030000000d000000
+    Count: 3
+  CasterType: 2
+  SpellcastingAbility: 4
+  MulticlassPrerequisites:
+  - Ability: 1
+    MinScore: 13
+  - Ability: 4
+    MinScore: 13
+  SubclassLevel: 3
+  Features: []
+  StartingEquipment: []
+  references:
+    version: 2
+    RefIds: []
