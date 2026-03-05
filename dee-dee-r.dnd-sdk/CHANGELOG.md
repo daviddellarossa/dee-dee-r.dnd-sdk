@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 16 — BasicCombat Sample
+
+- **`BasicCombatManager`** (`DeeDeeR.DnD.Samples.BasicCombat`) — coroutine-driven two-character combat loop. Rolls initiative via `InitiativeSystem`; sorts by result (ties to the player); loops rounds until one side reaches 0 HP. Player turn: activates `PlayerActionMenu` and yields on `WaitUntil(TurnComplete)`. Enemy turn: attacks with main-hand weapon via `CombatantComponent.PerformAttack`; yields one frame for signal propagation. At end of combat, publishes `CharacterDied` for the loser (game-side SDK contract) and logs the winner.
+- **`PlayerActionMenu`** (`DeeDeeR.DnD.Samples.BasicCombat`) — Unity UI panel (requires `Button` references). **Attack** button calls `CombatantComponent.PerformAttack` and sets `ActionUsed = true` (game's action-economy responsibility). **End Turn** button hides the panel and sets `TurnComplete = true`. Attack button is disabled when `ActionUsed` is set. Activated each turn by `BasicCombatManager.BeginPlayerTurn`.
+- **`CombatLogger`** (`DeeDeeR.DnD.Samples.BasicCombat`) — subscribes to six `DnDSdkBus` combat signals in `OnEnable` and unsubscribes in `OnDisable`: `TurnStarted`, `AttackMade`, `CriticalHit`, `DamageDealt`, `HitPointsChanged`, `CharacterDied`. Logs every event to the Unity Console. Demonstrates the bus as the SDK ↔ game seam: no reference to `CombatSystem` or combatant GameObjects.
+- **`dee-dee-r.dnd-sdk.samples.basiccombat.asmdef`** — sample assembly. References `dee-dee-r.dnd-sdk.core`, `dee-dee-r.dnd-sdk.runtime`, `Dee-Dee-R.Message-Bus.Runtime`, `UnityEngine.UI`.
+
+#### Design notes — Phase 16
+- SDK contracts explicitly enforced by the sample (per architecture plan): `CharacterDied` published by game (not SDK) when HP reaches 0; `ActionUsed` set by game after `PerformAttack` (SDK only resets it in `StartTurn`); resistance/immunity not implemented (no `ResistanceResolver`) — raw damage passed directly to `ApplyDamage`.
+- The scene (`BasicCombat.unity`) must be created manually in the Unity Editor. Required GameObjects: `DnDSdkRunner` (with `FrameSchedulerBehaviour`), `CombatLogger`, `BasicCombatManager`, `Player` (`CharacterComponent` + `CombatantComponent`), `Enemy` (`CharacterComponent` + `CombatantComponent`), Canvas with `PlayerActionMenu` panel (two `Button` children).
+- Character data (`CharacterRecord`, `CharacterState`, `InventoryState`) must be populated at runtime or via the **DnD SDK → Character Creation Wizard**. At minimum, set `HitPoints.Maximum/Current` and `EquippedMainHand` on each combatant before entering Play mode.
+
 #### Phase 15 — PHB Data Asset Generator
 
 - **`PHBAssetGenerator`** (`DeeDeeR.DnD.Editor.DataGeneration`) — entry point; menu item **DnD SDK → Generate PHB Assets**. Runs all sub-generators inside `AssetDatabase.StartAssetEditing` / `StopAssetEditing` for a single import pass. Provides `GetOrCreate<T>(folder, name)`, `Load<T>(folder, name)`, and `EnsureFolder(parent, child)` helpers used by all sub-generators. Output root: `Assets/DnD SDK/Data/`.
