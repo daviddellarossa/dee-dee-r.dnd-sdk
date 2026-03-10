@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using DeeDeeR.DnD.Core.Enums;
 using DeeDeeR.DnD.Core.Values;
@@ -7,6 +8,15 @@ namespace DeeDeeR.DnD.Tests.Editor.Values
     [TestFixture]
     public class DiceExpressionTests
     {
+        // ── Constructor validation ───────────────────────────────────────────
+
+        [Test]
+        public void Constructor_NegativeCount_ThrowsArgumentOutOfRangeException()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => new DiceExpression(-1, DieType.D6));
+        }
+
         // ── ToString ─────────────────────────────────────────────────────────
 
         [Test]

@@ -42,7 +42,7 @@ namespace DeeDeeR.DnD.Core.Systems
         /// </returns>
         public RollResult Roll(DiceExpression expression)
         {
-            if (expression.Count <= 0)
+            if (expression.Count == 0)
                 return new RollResult(expression.Modifier);
 
             int  total            = expression.Modifier;
