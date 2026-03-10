@@ -19,11 +19,15 @@ namespace DeeDeeR.DnD.Core.Values
         public readonly int      Modifier;
 
         /// <summary>Creates a dice expression (e.g. 2d6+3).</summary>
-        /// <param name="count">Number of dice. Use 0 for a flat value with no dice.</param>
+        /// <param name="count">Number of dice. Use 0 for a flat value with no dice. Must be non-negative.</param>
         /// <param name="die">Die type to roll.</param>
         /// <param name="modifier">Flat modifier added after rolling.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="count"/> is negative.</exception>
         public DiceExpression(int count, DieType die, int modifier = 0)
         {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count), count, "Count must be non-negative.");
+
             Count    = count;
             Die      = die;
             Modifier = modifier;
