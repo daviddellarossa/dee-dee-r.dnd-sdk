@@ -1,0 +1,110 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+    <Style src="../USS/GameStyles.uss" />
+    <ui:VisualElement name="CharCreationRoot" class="menu-overlay">
+        <ui:VisualElement name="CharCreationPanel" class="menu-panel">
+
+            <!-- Step 1: Identity -->
+            <ui:VisualElement name="step-1">
+                <ui:Label text="Step 1 — Identity" class="step-header" />
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Character Name" class="field-label" />
+                    <ui:TextField name="field-char-name" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Player Name" class="field-label" />
+                    <ui:TextField name="field-player-name" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Alignment" class="field-label" />
+                    <ui:EnumField name="field-alignment" type="DeeDeeR.DnD.Core.Enums.Alignment, dee-dee-r.dnd-sdk.core" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Step 2: Species -->
+            <ui:VisualElement name="step-2">
+                <ui:Label text="Step 2 — Species" class="step-header" />
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Species" class="field-label" />
+                    <ui:DropdownField name="field-species" />
+                </ui:VisualElement>
+                <ui:VisualElement name="subspecies-row" class="field-row">
+                    <ui:Label text="Subspecies" class="field-label" />
+                    <ui:DropdownField name="field-subspecies" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Step 3: Background -->
+            <ui:VisualElement name="step-3">
+                <ui:Label text="Step 3 — Background" class="step-header" />
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Background" class="field-label" />
+                    <ui:DropdownField name="field-background" />
+                </ui:VisualElement>
+                <ui:Label name="label-asi-preview" class="field-label" />
+            </ui:VisualElement>
+
+            <!-- Step 4: Class -->
+            <ui:VisualElement name="step-4">
+                <ui:Label text="Step 4 — Class &amp; Skills" class="step-header" />
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Class" class="field-label" />
+                    <ui:DropdownField name="field-class" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Level" class="field-label" />
+                    <ui:SliderInt name="field-level" low-value="1" high-value="20" value="1" show-input-field="true" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Skill Proficiencies" class="field-label" />
+                    <ui:ScrollView name="scroll-skills" style="max-height: 150px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Step 5: Ability Scores -->
+            <ui:VisualElement name="step-5">
+                <ui:Label text="Step 5 — Ability Scores" class="step-header" />
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Strength"     class="field-label" /><ui:IntegerField name="field-str" value="10" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Dexterity"    class="field-label" /><ui:IntegerField name="field-dex" value="10" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Constitution" class="field-label" /><ui:IntegerField name="field-con" value="10" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Intelligence" class="field-label" /><ui:IntegerField name="field-int" value="10" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Wisdom"       class="field-label" /><ui:IntegerField name="field-wis" value="10" />
+                </ui:VisualElement>
+                <ui:VisualElement class="field-row">
+                    <ui:Label text="Charisma"     class="field-label" /><ui:IntegerField name="field-cha" value="10" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Step 6: Summary -->
+            <ui:VisualElement name="step-6">
+                <ui:Label text="Step 6 — Summary" class="step-header" />
+                <ui:Label name="label-summary" class="field-label" />
+                <ui:Button name="btn-confirm" text="Create Character" class="menu-button" />
+            </ui:VisualElement>
+
+            <!-- Navigation -->
+            <ui:VisualElement class="nav-row">
+                <ui:Button name="btn-cancel" text="Cancel" class="menu-button" />
+                <ui:VisualElement style="flex-direction: row;">
+                    <ui:Button name="btn-back" text="Back"   class="menu-button" />
+                    <ui:Button name="btn-next" text="Next ›" class="menu-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

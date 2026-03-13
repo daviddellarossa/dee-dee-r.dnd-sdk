@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+    <Style src="../USS/GameStyles.uss" />
+    <ui:VisualElement name="MainMenuRoot" class="menu-overlay">
+        <ui:VisualElement name="MainMenuPanel" class="menu-panel">
+            <ui:Label text="D&amp;D SDK" class="menu-title" />
+            <ui:Button name="btn-new-game" text="New Game"   class="menu-button" />
+            <ui:Button name="btn-load-game" text="Load Game" class="menu-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
