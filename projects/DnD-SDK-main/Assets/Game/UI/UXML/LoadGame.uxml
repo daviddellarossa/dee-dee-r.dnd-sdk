@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+    <Style src="../USS/GameStyles.uss" />
+    <ui:VisualElement name="LoadGameRoot" class="menu-overlay">
+        <ui:VisualElement name="LoadGamePanel" class="menu-panel">
+            <ui:Label text="Load Game" class="menu-title" />
+            <ui:ScrollView name="save-list" style="max-height: 300px; margin-bottom: 16px;" />
+            <ui:Button name="btn-load" text="Load"   class="menu-button" />
+            <ui:Button name="btn-back" text="← Back" class="menu-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

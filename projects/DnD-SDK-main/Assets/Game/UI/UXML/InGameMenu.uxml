@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         engine="UnityEngine.UIElements"
+         editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+    <Style src="../USS/GameStyles.uss" />
+    <ui:VisualElement name="InGameMenuRoot" class="menu-overlay">
+        <ui:VisualElement name="InGameMenuPanel" class="menu-panel">
+            <ui:Label text="Menu" class="menu-title" />
+            <ui:Button name="btn-save"        text="Save Game"          class="menu-button" />
+            <ui:Button name="btn-save-quit"   text="Save and Quit"      class="menu-button" />
+            <ui:Button name="btn-quit-nosave" text="Quit Without Saving" class="menu-button" />
+            <ui:Button name="btn-resume"      text="Resume"              class="menu-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

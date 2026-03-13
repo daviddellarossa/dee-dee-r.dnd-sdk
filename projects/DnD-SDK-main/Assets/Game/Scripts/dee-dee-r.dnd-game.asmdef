@@ -1,0 +1,19 @@
+{
+    "name": "dee-dee-r.dnd-game",
+    "rootNamespace": "DeeDeeR.DnD.Game",
+    "references": [
+        "dee-dee-r.dnd-sdk.core",
+        "dee-dee-r.dnd-sdk.runtime",
+        "Unity.InputSystem",
+        "Unity.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
